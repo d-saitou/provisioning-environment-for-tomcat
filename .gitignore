@@ -1,0 +1,2 @@
+.vagrant/
+sync/provision/ansible/site.retry
