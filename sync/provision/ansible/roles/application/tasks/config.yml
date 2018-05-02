@@ -1,0 +1,50 @@
+---
+- name: Check exists application config directory
+  stat: path={{ app_conf_base }}
+  register: is_application_config_directory
+  tags: [ 'application' ]
+
+- name: Create application config directory
+  file:
+    path: '{{ app_conf_base }}'
+    state: directory
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0755
+  when: not is_application_config_directory.stat.exists
+  tags: [ 'tomcat' ]
+
+- name: Copy application.properties
+  template:
+    src: 'application.properties.j2'
+    dest: '{{ app_properties }}'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0644
+  tags: [ 'application' ]
+
+- name: Set application.properties path
+  lineinfile:
+    path: '/etc/profile.d/tomcat.sh'
+    state: present
+    line: 'export JAVA_OPTS=$JAVA_OPTS" -Dspring4mvcexample.configurationFile={{ app_properties }}"'
+  when: not (lookup('file', '/etc/profile.d/tomcat.sh') is match('.*spring4mvcexample.*'))
+  tags: [ 'application' ]
+
+- name: Copy logback.xml
+  template:
+    src: 'logback.xml.j2'
+    dest: '{{ app_logback_config }}'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0644
+  tags: [ 'application' ]
+
+- name: Set logback.xml path
+  lineinfile:
+    path: '/etc/profile.d/tomcat.sh'
+    state: present
+    line: 'export JAVA_OPTS=$JAVA_OPTS" -Dlogback.configurationFile={{ app_logback_config }}"'
+  when: not (lookup('file', '/etc/profile.d/tomcat.sh') is match('.*logback.*'))
+  tags: [ 'application' ]
+

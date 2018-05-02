@@ -1,0 +1,13 @@
+---
+locale:
+  lang: 'ja_JP.UTF-8'
+
+keyboard:
+  keytable: 'jp106'
+  model: 'jp106'
+  layout: 'jp'
+
+timezone:
+  zoneinfo: 'Japan'
+  zone: 'Asia/Tokyo'
+

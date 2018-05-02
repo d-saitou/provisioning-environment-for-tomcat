@@ -1,0 +1,18 @@
+---
+- name: Copy zoneinfo
+  copy:
+    src: '/usr/share/zoneinfo/{{ timezone.zoneinfo }}'
+    dest: '/etc/localtime'
+    owner: root
+    group: root
+    mode: 0644
+  tags: [ 'common' ]
+
+- name: Set timezone
+  lineinfile:
+    path: '/etc/sysconfig/clock'
+    state: present
+    regexp: '^ZONE=.*'
+    line: 'ZONE="{{ timezone.zone }}"'
+  tags: [ 'common' ]
+

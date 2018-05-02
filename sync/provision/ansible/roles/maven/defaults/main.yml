@@ -1,0 +1,9 @@
+---
+maven_major: 3
+maven_version: 3.5.2
+maven_basename: 'apache-maven-{{ maven_version }}'
+maven_basepath: '/opt/maven'
+maven_path: '{{ maven_basepath }}/{{ maven_basename }}'
+maven_file: '{{ maven_basename }}-bin.tar.gz'
+maven_url: 'http://ftp.riken.jp/net/apache/maven/maven-{{ maven_major }}/{{ maven_version }}/binaries/{{ maven_file }}'
+

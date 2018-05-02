@@ -1,0 +1,36 @@
+---
+- name: Check exists database
+  shell: 'mysql -u root -p{{ mysql_root_password }} -sN -e "show databases" | grep {{ app_db_name }}'
+  register: db_status
+  failed_when: db_status.rc == 2
+  tags: [ 'application' ]
+
+- name: Create database
+  mysql_db:
+    state: import
+    name: all
+    target: '{{ app_import_sql }}'
+    encoding: utf8
+    login_user: 'root'
+    login_password: '{{ mysql_root_password }}'
+  when: db_status.rc == 1
+  tags: [ 'application' ]
+
+- name: Create user
+  mysql_user:
+    host: '{{ item }}'
+    name: '{{ app_db_user }}'
+    password: '{{ app_db_password }}'
+    append_privs: yes
+    priv: '{{ app_db_name }}.*:ALL'
+    state: present
+    login_user: 'root'
+    login_password: '{{ mysql_root_password }}'
+  with_items:
+    - '{{ ansible_hostname }}'
+    - 127.0.0.1
+    - ::1
+    - localhost
+    - '192.168.33.%'
+  tags: [ 'application' ]
+

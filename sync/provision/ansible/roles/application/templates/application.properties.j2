@@ -1,0 +1,62 @@
+# Common
+app.datadir = {{ app_tmp_path }}
+app.charset = UTF-8
+
+# Controller advice
+appControllerAdvice.autoGrowCollectionLimit = 512
+
+# Data source
+jdbc.driverClassName = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/{{ app_db_name }}
+jdbc.username = {{ app_db_user }}
+jdbc.password = {{ app_db_password }}
+jdbc.initialSize = 10
+jdbc.maxActive = 100
+jdbc.maxIdle = 20
+jdbc.minIdle = 10
+jdbc.validationQuery = SELECT 1
+jdbc.timeBetweenEvictionRunsMillis = 60000
+hibernate.show_sql = false
+hibernate.format_sql = true
+hibernate.jdbc.fetch_size = 400
+hibernate.jdbc.batch_size = 200
+
+# DB access paging
+dbPagingSelect.size = 20
+
+# Logger (logback)
+logback.logDirectory = {{ app_logs_path }}
+logback.fileBaseName = spring4mvcexample
+logback.TimeBasedRollingPolicy.maxHistory = 30
+
+# Mail (use gmail)
+javax.mail.smtpHost = smtp.gmail.com
+javax.mail.smtpPort = 587
+javax.mail.startTLS = true
+javax.mail.username = XXXXXXXX@gmail.com
+javax.mail.password = XXXXXXXX
+javax.mail.toAddr = XXXXXXXX@gmail.com
+javax.mail.fromAddr = XXXXXXXX@gmail.com
+# * logback only
+javax.mail.subject = Spring4 Mvc Example Mail (Logback SMTPAppender)
+# * Mail send class only
+javax.mail.charset = ${app.charset}
+javax.mail.encode = base64
+javax.mail.connectionTimeout = 30000
+javax.mail.timeout = 30000
+javax.mail.debug = true
+
+# File upload
+multipartFileDao.fileUploadDirectory = ${app.datadir}
+
+# File download
+fileDownloadController.charset = ${app.charset}
+fileDownloadService.workDirectory = ${app.datadir}
+fileDownloadService.excelFileName = taskdata.xlsx
+
+# Task schedule
+scheduledTasks.execute = true
+scheduledTasks.fixedRateTask.schedule.fixedRate = 600000
+scheduledTasks.initialAndFixedDelayTask.schedule.initialDelay = 60000
+scheduledTasks.initialAndFixedDelayTask.schedule.fixedDelay = 600000
+scheduledTasks.cronTask.schedule.cron = 0 */10 * * * *

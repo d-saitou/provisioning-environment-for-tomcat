@@ -1,0 +1,44 @@
+---
+- name: Check exists Maven directory
+  stat: path='{{ maven_path }}'
+  register: is_maven
+  tags: [ 'maven' ]
+
+- name: Download Maven archive file
+  get_url:
+    url: '{{ maven_url }}'
+    dest: '/tmp/{{ maven_file }}'
+    mode: 0644
+  when: not is_maven.stat.exists
+  tags: [ 'maven' ]
+
+- name: Create Maven base directory
+  file:
+    path: '{{ maven_basepath }}'
+    state: directory
+    mode: 0755
+  when: not is_maven.stat.exists
+  tags: [ 'maven' ]
+
+- name: Install Maven
+  unarchive:
+    src: '/tmp/{{ maven_file }}'
+    dest: '{{ maven_basepath }}'
+    mode: 0755
+  when: not is_maven.stat.exists
+  tags: [ 'maven' ]
+
+- name: Remove Maven archive file
+  file:
+    path: '/tmp/{{ maven_file }}'
+    state: absent
+  when: not is_maven.stat.exists
+  tags: [ 'maven' ]
+
+- name: Copy maven.sh template
+  template:
+    src: 'maven.sh.j2'
+    dest: '/etc/profile.d/maven.sh'
+    mode: 0644
+  tags: [ 'maven' ]
+

@@ -1,0 +1,23 @@
+---
+tomcat_user: 'tomcat'
+tomcat_user_password: 'tomcat'
+tomcat_version: '8.0.51'
+tomcat_basename: 'apache-tomcat-{{ tomcat_version }}'
+tomcat_basepath: '/opt/tomcat'
+tomcat_path: '{{ tomcat_basepath }}/{{ tomcat_basename }}'
+tomcat_file: '{{ tomcat_basename }}.tar.gz'
+tomcat_url: 'http://ftp.riken.jp/net/apache/tomcat/tomcat-8/v{{ tomcat_version }}/bin/{{ tomcat_file }}'
+tomcat_manager_user: 'admin'
+tomcat_manager_password: 'root'
+tomcat_deploy_user: 'deploy'
+tomcat_deploy_password: 'deploy'
+
+app_home_path: '/apps'
+app_web_path: '{{ app_home_path }}/webapps'
+app_bin_path: '{{ app_home_path }}/bin'
+app_conf_path: '{{ app_home_path }}/conf'
+app_src_path: '{{ app_home_path }}/src'
+app_data_path: '{{ app_home_path }}/data'
+app_logs_path: '{{ app_home_path }}/logs'
+app_tmp_path: '{{ app_home_path }}/tmp'
+

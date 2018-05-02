@@ -1,0 +1,25 @@
+---
+- name: Set keyboard layout (keytable)
+  lineinfile:
+    path: '/etc/sysconfig/keyboard'
+    state: present
+    regexp: '^KEYTABLE=.*'
+    line: 'KEYTABLE="{{ keyboard.keytable }}"'
+  tags: [ 'common' ]
+
+- name: Set keyboard layout (model)
+  lineinfile:
+    path: '/etc/sysconfig/keyboard'
+    state: present
+    regexp: '^MODEL=.*'
+    line: 'MODEL="{{ keyboard.model }}"'
+  tags: [ 'common' ]
+
+- name: Set keyboard layout (layout)
+  lineinfile:
+    path: '/etc/sysconfig/keyboard'
+    state: present
+    regexp: '^LAYOUT=.*'
+    line: 'LAYOUT="{{ keyboard.layout }}"'
+  tags: [ 'common' ]
+

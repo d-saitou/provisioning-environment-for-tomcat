@@ -1,0 +1,13 @@
+---
+- name: Install language pack
+  yum: name='@Japanese Support' state=latest
+  tags: [ 'common' ]
+
+- name: Set locale
+  lineinfile:
+    path: '/etc/sysconfig/i18n'
+    state: present
+    regexp: '^LANG=.*'
+    line: 'LANG="{{ locale.lang }}"'
+  tags: [ 'common' ]
+

@@ -1,0 +1,80 @@
+---
+- name: Check exists MySQL
+  stat: path='/usr/bin/mysql'
+  register: is_mysql
+  tags: [ 'mysql' ]
+
+- name: Uninstall MySQL current version
+  yum: name='mysql*' state=absent
+  when: not is_mysql.stat.exists
+  tags: [ 'mysql' ]
+
+- name: Add MySQL rpm package
+  yum:
+    name: '{{ mysql_rpm_url }}'
+    state: latest
+  when: not is_mysql.stat.exists
+  tags: [ 'mysql' ]
+
+- name: Install MySQL
+  yum: name='{{ item }}' state=latest
+  with_items:
+    - mysql
+    - mysql-devel
+    - mysql-server
+    - mysql-utilities
+  when: not is_mysql.stat.exists
+  tags: [ 'mysql' ]
+
+- name: Check exists my.cnf backup
+  stat: path='/etc/my.cnf.bak'
+  register: is_my_cnf_backup
+  tags: [ 'mysql' ]
+
+- name: Backup my.cnf
+  copy:
+    src: '/etc/my.cnf'
+    dest: '/etc/my.cnf.bak'
+    owner: root
+    group: root
+    mode: 0644
+  when: not is_my_cnf_backup.stat.exists
+  tags: [ 'mysql' ]
+
+- name: Copy my.cnf
+  copy:
+    src: 'my.cnf'
+    dest: '/etc/my.cnf'
+    owner: root
+    group: root
+    mode: 0644
+  tags: [ 'mysql' ]
+
+- name: Restart mysqld
+  service:
+    name: mysqld
+    state: restarted
+    enabled: yes
+  tags: [ 'mysql' ]
+
+- name: Install MySQL module for Ansible
+  yum: name='MySQL-python' state=latest
+  tags: [ 'mysql' ]
+
+- name: Check MySQL running status
+  shell: 'mysqladmin ping -u root -p{{ mysql_root_password }} | grep alive'
+  ignore_errors: true
+  register: init_flag
+  tags: [ 'mysql' ]
+
+- name: Update root password
+  mysql_user: name=root host={{ item }} password='{{ mysql_root_password }}'
+  with_items:
+#    - '{{ inventory_hostname }}'
+    - 127.0.0.1
+    - ::1
+    - localhost
+#    - 192.168.33.%
+  when: init_flag.rc == 1
+  tags: [ 'mysql' ]
+

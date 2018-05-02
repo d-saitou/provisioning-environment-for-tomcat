@@ -1,0 +1,17 @@
+;[local]
+;127.0.0.1 ansible_connection=local
+
+[ap-servers]
+127.0.0.1 ansible_connection=local
+
+[db-servers]
+127.0.0.1 ansible_connection=local
+
+[development]
+127.0.0.1 ansible_connection=local
+
+[app-group:children]
+ap-servers
+db-servers
+development
+

@@ -1,0 +1,21 @@
+---
+- name: Setup password authentication
+  lineinfile:
+    path: '/etc/ssh/sshd_config'
+    state: present
+    regexp: '^PasswordAuthentication .*'
+    line: 'PasswordAuthentication yes'
+  tags: [ 'ssh' ]
+
+- name: Setup port
+  lineinfile:
+    path: '/etc/ssh/sshd_config'
+    state: present
+    regexp: '.*Port .*'
+    line: 'Port 22'
+  tags: [ 'ssh' ]
+
+- name: Restart sshd
+  service: name=sshd state=restarted
+  tags: [ 'ssh' ]
+

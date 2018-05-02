@@ -1,0 +1,36 @@
+---
+#- name: main
+#  hosts: local
+#  become: yes
+#  roles:
+
+- name: Provision all
+  hosts: all
+  become: yes
+  roles:
+    - common
+    - ssh
+
+- name: Provision development environment
+  hosts: development
+  become: yes
+  roles:
+    - desktop
+    - xrdp
+
+- name: Provision db-server
+  hosts: db-servers
+  become: yes
+  roles:
+    - mysql
+
+- name: Provision ap-server
+  hosts: ap-servers
+  become: yes
+  roles:
+    - jdk
+    - maven
+    - tomcat
+    - jenkins
+    - application
+

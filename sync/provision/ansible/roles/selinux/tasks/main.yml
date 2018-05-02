@@ -1,0 +1,12 @@
+---
+- name: Check if selinux is installed
+  command: getenforce
+  register: command_result
+  ignore_errors: true
+  tags: [ 'selinux' ]
+
+- name: Install libselinux-python
+  yum: name='libselinux-python'
+  when: command_result is success and command_result.stdout != 'Disabled'
+  tags: [ 'selinux' ]
+

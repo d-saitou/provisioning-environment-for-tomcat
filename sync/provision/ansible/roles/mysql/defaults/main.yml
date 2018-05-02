@@ -1,0 +1,6 @@
+---
+mysql_rpm_url: 'http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm'
+
+# *defined by group_vars/all
+#mysql_root_password: 'root'
+

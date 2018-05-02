@@ -1,0 +1,15 @@
+---
+- name: Check exists application
+  stat: path={{ app_path }}
+  register: is_application_source
+  tags: [ 'application' ]
+
+- name: Download application from GitHub
+  become: yes
+  become_user: '{{ tomcat_user }}'
+  git: 
+    repo: '{{ app_url }}'
+    dest: '{{ app_path }}'
+  when: not is_application_source.stat.exists
+  tags: [ 'application' ]
+

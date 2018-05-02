@@ -1,0 +1,15 @@
+---
+- name: Install remote desktop
+  yum: name='{{ item }}' state=present enablerepo=epel
+  with_items:
+    - tigervnc-server
+    - xrdp
+  tags: [ 'xrdp' ]
+
+- name: Enable remote desktop
+  service:
+    name: xrdp
+    state: restarted
+    enabled: yes
+  tags: [ 'xrdp' ]
+
