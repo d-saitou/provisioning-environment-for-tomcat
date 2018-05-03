@@ -1,89 +1,90 @@
-# Tomcat 8 アプリケーションプロビジョニング環境
+# Provisioning environment for Tomcat 8 application
+\* [Japanese version](/README.ja.md)
 
-## 1. 概要
-本プロジェクトは、Tomcat 8アプリケーション[(Spring4MvcExample)](https://github.com/d-saitou/Spring4MvcExample/)のプロビジョニング環境です。  
-本プロビジョニング環境は以下の環境構築の操作を実行します。
+## 1. Overview
+This project is the provisioning environment for Tomcat 8 application [(Spring4MvcExample)](https://github.com/d-saitou/Spring4MvcExample/).  
+This provisioning environment executes the following procedure.
 
-* 仮想マシン構築
-* ゲストOS及び必要なソフトウェア類のセットアップ
-* アプリケーションのビルド/デプロイ
-* DB構築
+* Create a virtual machine
+* Set up guest OS and required software
+* Build and deploy the application
+* Set up the database
 
 
-## 2. 開発環境
-以下の環境を使用して開発しています。
+## 2. Development Environment
+This provisioning environment is under development in the following environment.
 
 * Vagrant 1.9.8
 * VirtualBox 5.1.26
 
 
-## 3. 説明
-本プロビジョニング環境は、プロビジョニングを実行するために以下のツールを使用しています。
+## 3. Description
+This provisioning environment uses the following tools for provisioning.
 
-* プロビジョニング
-  - Vagrant (+シェルスクリプト)
-  - Ansible (※プロビジョニング時にゲストOS内で自動インストール)
-* ビルド/デプロイ
-  - Maven (※プロビジョニング時にゲストOS内で自動インストール)
-  - Jenkins (※プロビジョニング時にゲストOS内で自動インストール)
+* Provisioning
+  - Vagrant (+ shell script)
+  - Ansible (\* Automatically installed on the guest OS during provisioning)
+* Build and deploy
+  - Maven (\* Automatically installed on the guest OS during provisioning)
+  - Jenkins (\* Automatically installed on the guest OS during provisioning)
 
-ゲストOSには CentOS 6 を使用します。  
-また、Windows リモートデスクトップでゲストOSのデスクトップ環境に接続することができます。
+For the guest OS use CentOS 6.  
+Also, you can connect to the guest OS desktop environment on Windows Remote Desktop.
 
-### 3.1. セットアップ内容
-本プロビジョニング環境は以下の手順でプロビジョニングを実行します。  
+### 3.1. Provisioning procedure
+In this provisioning environment, provisioning is executed by the following procedure.  
 
 <div style="text-align: center;">
-	<img src="https://github.com/d-saitou/provisioning-environment-for-tomcat8/blob/images/ProvisioningProcedure.ja.jpg">
+	<img src="https://github.com/d-saitou/provisioning-environment-for-tomcat8/blob/images/ProvisioningProcedure.jpg">
 </div>
 
-### 3.2. ユーザ一覧
-各種ユーザーのログイン情報は以下表の通りです。
+### 3.2. User list
+For the login information of various users, please refer to the following tables.
 
-[OS]
+**[OS]**
 
-| ユーザー名 | パスワード | ホームディレクトリ | 備考                                |
-|:-----------|:-----------|:-------------------|:------------------------------------|
-| vagrant    | vagrant    | /home/vagrant      | Vagrant用仮想マシンのユーザー       |
-| tomcat     | tomcat     | /apps              | Webアプリケーション起動用のユーザー |
+| User    | Password | User home     | Description                          |
+|:--------|:---------|:--------------|:-------------------------------------|
+| vagrant | vagrant  | /home/vagrant | User of virtual machines for Vagrant |
+| tomcat  | tomcat   | /apps         | User for starting Web applicaion     |
 
-[アプリケーション]
+**[Application]**
 
-| アプリケーション   | ユーザー名 | パスワード | URL                                           | 備考           |
-|:-------------------|:-----------|:-----------|:----------------------------------------------|:---------------|
-| MySQL              | root       | root       | \-                                            |                |
-| 〃                 | spring     | spring     | ※ DB: spring4example                         |                |
-| Tomcatマネージャー | admin      | root       | http://192.168.33.11:8080/manager/html        |                |
-| Jenkins            | admin      | root       | http://192.168.33.11:8080/jenkins/            |                |
-| Spring4MvcExample  | admin      | admin      | http://192.168.33.11:8080/Spring4MvcExample/  | 管理者ユーザー |
-| 〃                 | user       | user       | 〃                                            | 一般ユーザー   |
+| Application       | User   | Password | URL                                      | Description   |
+|:------------------|:-------|:---------|:-----------------------------------------|:--------------|
+| MySQL             | root   | root     | \-                                       |               |
+| \* same as above  | spring | spring   | \* Database: spring4example              |               |
+| Tomcat Manager    | admin  | root     | http://{ip-addr}:8080/manager/           |               |
+| Jenkins           | admin  | root     | http://{ip-addr}:8080/jenkins/           |               |
+| Spring4MvcExample | admin  | admin    | http://{ip-addr}:8080/Spring4MvcExample/ | Administrator |
+| \* same as above  | user   | user     | \* same as above                         | Public user   |
 
-### 3.3. ディレクトリ構成
-各種Webアプリケーションは、"tomcat"ユーザーのホームディレクトリ配下に配置されます。  
-ディレクトリ構成は以下の通りです。
+### 3.3. Directory structure
+Various Web applications are placed under the "tomcat" user's home directory.  
+The directory structure is as follows.
 
-| パス          | 説明                                                                           |
-|:--------------|:-------------------------------------------------------------------------------|
-| /opt/tomcat   | Tomcatインストールディレクトリ                                                 |
-| /opt/maven    | Mavenインストールディレクトリ                                                  |
-| /apps         | "tomcat"ユーザーのホームディレクトリ                                           |
-| /apps/bin     | シェルスクリプト等の実行ファイルを格納                                         |
-| /apps/conf    | アプリケーション設定を格納                                                     |
-| /apps/data    | アプリケーション用のデータファイル類を格納                                     |
-| /apps/logs    | アプリケーションログを格納                                                     |
-| /apps/src     | チェックアウトしたソースを格納 (※Jenkinsのチェックアウトディレクトリとは別物) |
-| /apps/tmp     | 一時的なファイルを格納するディレクトリ                                         |
-| /apps/webapps | 各種Webアプリケーションのデプロイ用ディレクトリ                                |
+| Path          | Description                                                                        |
+|:--------------|:-----------------------------------------------------------------------------------|
+| /opt/tomcat   | Tomcat installation directory                                                      |
+| /opt/maven    | Maven installation directory                                                       |
+| /apps         | "tomcat" user's home directory                                                     |
+| /apps/bin     | Store execution files such as shell scripts                                        |
+| /apps/conf    | Store application configuration files                                              |
+| /apps/data    | Store data files for applications                                                  |
+| /apps/logs    | Store application log files                                                        |
+| /apps/src     | Store checked out sources (\* separate directory from Jenkins' checkout directory) |
+| /apps/tmp     | Store temporary files                                                              |
+| /apps/webapps | Directory for deploying various Web applications                                   |
 
 
-## 4. 使用方法
-以下の手順でプロビジョニングを実行してください。
+## 4. How to use
+Perform provisioning by the following procedure.
 
-1. [Vagrant](https://www.vagrantup.com/) 及び [VirtualBox](https://www.virtualbox.org/) をインストールする。
+1. Install [Vagrant](https://www.vagrantup.com/) and [VirtualBox](https://www.virtualbox.org/).
 
-2. 本プロジェクトをチェックアウトする。
+2. Check out this provisioning environment.
 
-3. 以下ファイルを開き、必要に応じてバージョン及びダウンロード元URLを変更する。  
+3. Open the following file, and change version and URL for downloading source as necessary.  
 
 	* [/sync/provision/ansible/roles/mysql/defaults/main.yml](/sync/provision/ansible/roles/mysql/defaults/main.yml)  
 	* [/sync/provision/ansible/roles/jdk/defaults/main.yml](/sync/provision/ansible/roles/jdk/defaults/main.yml)  
@@ -92,43 +93,43 @@
 	* [/sync/provision/ansible/roles/jenkins/defaults/main.yml](/sync/provision/ansible/roles/jenkins/defaults/main.yml)  
 
 
-4. 以下操作を実施する。  
+4. Perform the following operation.  
 
-	[Windows]  
-	[startup.bat](startup.bat)を実行する。  
+	**[Windows]**  
+	Run [startup.bat](startup.bat) .  
 
-	[その他]  
-	以下コマンドを実行する。  
+	**[Other OS]**  
+	Execute the following commands.
   ```
-  cd { 本プロジェクトソースフォルダ }
+  cd {this provisioning environment directory}
   vagrant plugin install vagrant-vbguest
   vagrant up
   ```
 
 
-## 5. 注意点
+## 5. Note
 
-### 5.1. IPアドレス設定
-[Vagrantfile](Vagrantfile)の中でゲストOSのIPアドレスを固定値(192.168.33.11)で設定しているため、必要に応じて変更してください。
+### 5.1. IP address configulation
+Since the IP address of the guest OS is set as a fixed value (192.168.33.11) in [Vagrantfile](Vagrantfile), please change it as necessary.
 
-### 5.2. エラー発生時のログファイル確認
-プロビジョニング実行時のログファイルはゲストOSの以下のパスに格納されます。  
-エラーが発生した場合、コンソール表示内容またはログファイルを参照してください。
+### 5.2. Confirm log file at error occurrence
+The log file at provisioning is stored in the following path of the guest OS.  
+If an error occurs, refer to the console display contents or log file.
 
 ```
 /home/vagrant/provision.<yyyymmddHHMMSS>.log
 ```
 
-### 5.3. Tomcat再起動時のエラー終了
-プロビジョニング中に何度かTomcatが再起動されますが、<span style="color: red; ">再起動に失敗してプロビジョニングがエラー終了する場合があります。</span>  
-この場合、ホストOS上で以下プロビジョニング再実行コマンドを実行すればプロビジョニングが成功します。  
-※現在は原因不明。原因が解明した場合は修正予定。
+### 5.3. Error termination when restarting Tomcat
+Tomcat will be restarted several times during provisioning, but the reboot fails and the provisioning may end in error.  
+In this case, provisioning will succeed if you execute the provisioning re-execution command below on the host OS.  
+\* Currently the cause is unknown. It will be fixed if the cause is clarified.
 
 ```
 vagrant provision
 ```
 
-エラー例:
+**ex:**
 <div style="text-align: center;">
   <img src="https://github.com/d-saitou/provisioning-environment-for-tomcat8/blob/images/TomcatRestartError.jpg" width="95%">
 </div>
