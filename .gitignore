@@ -1,2 +1,6 @@
+# master branch
 .vagrant/
 sync/provision/ansible/site.retry
+
+# images branch
+original
