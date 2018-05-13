@@ -1,7 +1,19 @@
 ---
 jenkins_war: 'jenkins.war'
-jenkins_version: '2.91'
+jenkins_version: '2.121'
 jenkins_url: 'http://mirrors.jenkins-ci.org/war/{{ jenkins_version }}/{{ jenkins_war }}'
 jenkins_war_path: '{{ app_web_path }}/{{ jenkins_war }}'
 jenkins_home: '{{ app_data_path }}/jenkins'
+
+jenkins_maven_home: '{{ maven_path }}'
+jenkins_credentials_userid: 'deploy-user'
+jenkins_credentials_username: '{{ tomcat_deploy_user }}'
+jenkins_credentials_password: '{{ tomcat_deploy_password }}'
+jenkins_credentials_description: 'Tomcat deploy user'
+
+# Note:
+#  The following parameters can not be changed as they have already been defined
+#  in the configulatiion in Jenkins data backup (../files/jenkins-backup.tar.gz).
+jenkins_app_user: 'admin'
+jenkins_app_password: 'root'
 

@@ -1,0 +1,59 @@
+---
+- name: Check exists JENKINS_HOME
+  stat: path='{{ jenkins_home }}'
+  register: is_jenkins_home
+  tags: [ 'jenkins' ]
+
+- name: Check exists Jenkins backup file
+  stat: path='{{ app_data_path }}/jenkins-backup.tar.gz'
+  register: is_jenkins_backup
+  tags: [ 'jenkins' ]
+
+- name: Copy Jenkins backup file
+  copy:
+    src: 'jenkins-backup.tar.gz'
+    dest: '{{ app_data_path }}/jenkins-backup.tar.gz'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0644
+  when: is_jenkins_home.stat.exists and not is_jenkins_backup.stat.exists
+  tags: [ 'jenkins' ]
+
+- name: Copy Jenkins backup script
+  copy:
+    src: 'jenkins-backup.sh'
+    dest: '{{ app_bin_path }}/jenkins-backup.sh'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0755
+  when: is_jenkins_home.stat.exists
+  tags: [ 'jenkins' ]
+
+- name: Copy Jenkins restore script
+  copy:
+    src: 'jenkins-restore.sh'
+    dest: '{{ app_bin_path }}/jenkins-restore.sh'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0755
+  when: is_jenkins_home.stat.exists
+  tags: [ 'jenkins' ]
+
+- name: Restore jenkins settings
+  become: yes
+  become_user: '{{ tomcat_user }}'
+  shell: '{{ app_bin_path }}/jenkins-restore.sh {{ jenkins_home }} {{ app_data_path }}/jenkins-backup.tar.gz'
+  ignore_errors: true
+  when: is_jenkins_home.stat.exists and not is_jenkins_backup.stat.exists
+  tags: [ 'jenkins' ]
+
+- name: Copy Maven configulation file template
+  template:
+    src: 'hudson.tasks.Maven.xml.j2'
+    dest: '{{ jenkins_home }}/hudson.tasks.Maven.xml'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0644
+  when: is_jenkins_home.stat.exists and not is_jenkins_backup.stat.exists
+  tags: [ 'jenkins' ]
+

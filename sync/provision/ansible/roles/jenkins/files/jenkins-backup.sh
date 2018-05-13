@@ -3,8 +3,8 @@
 # Jenkins backup script
 # 
 # auther: d-saitou
-# version: 1.00
-# release: 2018/03/03
+# version: 1.01
+# release: 2018/05/12
 # 
 # reference:
 #  jenkins-backup-script
@@ -86,12 +86,14 @@ function backup_jenkins() {
 	fi
 	
 	mkdir -p ${WORKDIR}/plugins
-	cp -p ${JENKINS_HOME}/plugins/*.[hj]pi ${WORKDIR}/plugins
-	[ ${?} -ne 0 ] && return 1
-	PINNEDCNT=$(find ${JENKINS_HOME}/plugins/ -name *.[hj]pi.pinned | wc -l)
-	if [ ${PINNEDCNT} -gt 0 ]; then
-		cp -p ${JENKINS_HOME}/plugins/*.[hj]pi.pinned ${WORKDIR}/users
+	if [ $(find ${JENKINS_HOME}/plugins -type f | wc -l) -gt 0 ] ; then
+		cp -p ${JENKINS_HOME}/plugins/*.[hj]pi ${WORKDIR}/plugins
 		[ ${?} -ne 0 ] && return 1
+		PINNEDCNT=$(find ${JENKINS_HOME}/plugins/ -name *.[hj]pi.pinned | wc -l)
+		if [ ${PINNEDCNT} -gt 0 ]; then
+			cp -p ${JENKINS_HOME}/plugins/*.[hj]pi.pinned ${WORKDIR}/users
+			[ ${?} -ne 0 ] && return 1
+		fi
 	fi
 	
 	mkdir -p ${WORKDIR}/jobs

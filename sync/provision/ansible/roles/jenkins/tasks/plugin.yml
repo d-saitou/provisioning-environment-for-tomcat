@@ -1,0 +1,26 @@
+---
+- name: Check exists jenkins-cli.jar
+  stat: path='{{ app_bin_path }}/jenkins-cli.jar'
+  register: is_jenkins_cli
+  tags: [ 'jenkins' ]
+
+- name: Download jenkins-cli.jar
+  become: yes
+  become_user: '{{ tomcat_user }}'
+  get_url:
+    url: 'http://{{ inventory_hostname }}:8080/jenkins/jnlpJars/jenkins-cli.jar'
+    dest: '{{ app_bin_path }}/jenkins-cli.jar'
+  when: not is_jenkins_cli.stat.exists
+  tags: [ 'jenkins' ]
+
+- name: Install Jenkins plugin
+  shell: 'java -jar {{ app_bin_path }}/jenkins-cli.jar -s http://localhost:8080/jenkins install-plugin {{ item }} --username {{ jenkins_app_user }} --password {{ jenkins_app_password }}'
+  with_items:
+    # https://plugins.jenkins.io/credentials
+    - credentials
+    # https://plugins.jenkins.io/git
+    - git
+    # https://plugins.jenkins.io/deploy
+    - deploy
+  tags: [ 'jenkins' ]
+

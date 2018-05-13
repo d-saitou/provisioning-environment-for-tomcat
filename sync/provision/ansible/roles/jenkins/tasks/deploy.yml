@@ -1,0 +1,52 @@
+---
+- name: Stop Tomcat service
+  become: yes
+  service:
+    name: tomcat
+    state: stopped
+  tags: [ 'jenkins' ]
+
+- name: Check exists Jenkins war file
+  stat: path='{{ app_data_path }}/{{ jenkins_war }}'
+  register: is_jenkins
+  tags: [ 'jenkins' ]
+
+- name: Download Jenkins war file
+  become: yes
+  become_user: '{{ tomcat_user }}'
+  get_url:
+    url: '{{ jenkins_url }}'
+    dest: '{{ app_data_path }}/{{ jenkins_war }}'
+    mode: 0755
+  when: not is_jenkins.stat.exists
+  tags: [ 'jenkins' ]
+
+- name: Copy Jenkins war file
+  copy:
+    src: '{{ app_data_path }}/{{ jenkins_war }}'
+    dest: '{{ jenkins_war_path }}'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0755
+  when: not is_jenkins.stat.exists
+  tags: [ 'jenkins' ]
+
+# * Invalidate because the path of appbase has been changed
+#- name: Copy Jenkins context file template
+#  template:
+#    src: 'jenkins.xml.j2'
+#    dest: '{{ tomcat_path }}/conf/Catalina/localhost/jenkins.xml'
+#    owner: '{{ tomcat_user }}'
+#    group: '{{ tomcat_user }}'
+#    mode: 0755
+#  when: not is_jenkins.stat.exists
+#  tags: [ 'jenkins' ]
+
+- name: Set Jenkins home path
+  lineinfile:
+    path: '/etc/profile.d/tomcat.sh'
+    state: present
+    line: 'export JAVA_OPTS=$JAVA_OPTS" -DJENKINS_HOME={{ jenkins_home }}"'
+  when: not (lookup('file', '/etc/profile.d/tomcat.sh') is match('.*JENKINS_HOME.*'))
+  tags: [ 'jenkins' ]
+
