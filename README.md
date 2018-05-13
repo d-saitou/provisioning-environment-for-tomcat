@@ -96,7 +96,7 @@ Perform provisioning by the following procedure.
 4. Perform the following operation.  
 
 	**[Windows]**  
-	Run [startup.bat](startup.bat) .  
+	Run [init.bat](init.bat) .  
 
 	**[Other OS]**  
 	Execute the following commands.

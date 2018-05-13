@@ -96,7 +96,7 @@
 4. 以下操作を実施する。  
 
 	**[Windows]**  
-	[startup.bat](startup.bat) を実行する。  
+	[init.bat](init.bat) を実行する。  
 
 	**[その他OS]**  
 	以下コマンドを実行する。  
