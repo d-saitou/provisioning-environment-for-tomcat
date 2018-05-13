@@ -1,28 +1,4 @@
 ---
-- name: Restart Tomcat service
-  become: yes
-  service:
-    name: tomcat
-    state: restarted
-  tags: [ 'application' ]
-
-- name: Wait untils Tomcat web is available (delay - 30 sec)
-  wait_for:
-    host: '{{ inventory_hostname }}'
-    port: 8080
-    state: started
-    delay: 30
-    connect_timeout: 10
-  tags: [ 'application' ]
-
-- name: Wait untils Jenkins web is available (delay - 30 sec)
-  uri: url='http://{{ inventory_hostname }}:8080/jenkins/'
-  register: result
-  until: result.status == 200
-  retries: 7
-  delay: 30
-  tags: [ 'application' ]
-
 - name: Copy deploy-job.xml template
   template:
     src: 'deploy-job.xml.j2'
@@ -32,8 +8,15 @@
     mode: 0644
   tags: [ 'application' ]
 
+- name: Check exists Jenkins job
+  shell: 'java -jar {{ app_bin_path }}/jenkins-cli.jar -s http://localhost:8080/jenkins list-jobs --username {{ jenkins_user }} --password {{ jenkins_password }} | grep {{ app_basename }}'
+  register: command_result
+  failed_when: command_result.rc not in [0, 1]
+  tags: [ 'application' ]
+
 - name: Create Jenkins job
   shell: 'java -jar {{ app_bin_path }}/jenkins-cli.jar -s http://localhost:8080/jenkins create-job {{ app_basename }} --username {{ jenkins_user }} --password {{ jenkins_password }} < {{ app_data_path }}/deploy-job.xml'
+  when: command_result is success and command_result.rc == 1
   tags: [ 'application' ]
 
 - name: Execute Jenkins job

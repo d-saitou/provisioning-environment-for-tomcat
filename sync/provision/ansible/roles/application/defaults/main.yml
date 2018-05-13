@@ -18,6 +18,6 @@ app_db_password: 'spring'
 app_db_name: 'spring4example'
 app_import_sql: '{{ app_path }}/data/db/spring4example.sql'
 
-jenkins_user: 'admin'
-jenkins_password: 'root'
+jenkins_user: '{{ jenkins_app_user }}'
+jenkins_password: '{{ jenkins_app_password }}'
 

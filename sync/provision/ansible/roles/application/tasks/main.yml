@@ -3,5 +3,6 @@
 - include: db.yml
 - include: config.yml
 #- include: build.yml
+- include: ../jenkins/tasks/restart.yml
 - include: deploy.yml
 
