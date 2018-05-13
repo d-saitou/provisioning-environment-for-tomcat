@@ -1,6 +1,6 @@
 ---
 maven_major: 3
-maven_version: 3.5.2
+maven_version: 3.5.3
 maven_basename: 'apache-maven-{{ maven_version }}'
 maven_basepath: '/opt/maven'
 maven_path: '{{ maven_basepath }}/{{ maven_basename }}'
