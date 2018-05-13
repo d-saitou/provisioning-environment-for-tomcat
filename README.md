@@ -14,8 +14,8 @@ This provisioning environment executes the following procedure.
 ## 2. Development Environment
 This provisioning environment is under development in the following environment.
 
-* Vagrant 1.9.8
-* VirtualBox 5.1.26
+* Vagrant ~~1.9.8~~ \-> 2.1.1
+* VirtualBox ~~5.1.26~~ \-> 5.2.12
 
 
 ## 3. Description

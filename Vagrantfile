@@ -9,8 +9,8 @@
 # release: 2018/05/02
 # 
 # environments:
-#  Vagrant: 1.9.8
-#  VirtualBox: 5.1.26
+#  Vagrant: 1.9.8 -> 2.1.1
+#  VirtualBox: 5.1.26 -> 5.2.12
 Vagrant.configure("2") do |config|
   
   # using box
@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
   
   # hostname
-  config.vm.hostname = "centos6-dev"
+  config.vm.hostname = "centos6-tomcat8"
   
   # private network (host-only)
   config.vm.network "private_network", ip: "192.168.33.11"
