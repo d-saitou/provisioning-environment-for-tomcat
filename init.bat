@@ -26,8 +26,7 @@ if ERRORLEVEL 1 vagrant plugin install vagrant-vbguest
 cd /d %~dp0
 
 :: Get tee.exe path
-for /f "usebackq delims=" %%a in (`where vagrant`) do set VAGRANTPATH=%%a
-set TEEEXE=%VAGRANTPATH:\bin\vagrant.exe=%\embedded\usr\bin\tee.exe
+set TEEEXE=%VAGRANTEXE:\bin\vagrant.exe=%\embedded\usr\bin\tee.exe
 
 :: vagrant up
 set LOGFILE=vagrantup.log
