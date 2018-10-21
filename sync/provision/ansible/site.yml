@@ -30,6 +30,7 @@
   roles:
     - jdk
     - maven
+    - ant
     - tomcat
     - jenkins
     - application

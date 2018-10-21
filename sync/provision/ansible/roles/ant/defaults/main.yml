@@ -1,0 +1,15 @@
+---
+ant_version: 1.10.5
+ant_basename: 'apache-ant-{{ ant_version }}'
+ant_basepath: '/opt/ant'
+ant_path: '{{ ant_basepath }}/{{ ant_basename }}'
+ant_file: '{{ ant_basename }}-bin.tar.gz'
+ant_url: 'http://www.apache.org/dist/ant/binaries/{{ ant_file }}'
+
+ivy_version: 2.4.0
+ivy_basename: 'ivy-{{ ivy_version }}'
+ivy_file: '{{ ivy_dirname }}-bin.tar.gz'
+ivy_url: 'http://www.apache.org/dist/ant/ivy/{{ ivy_version }}/{{ ivy_file }}'
+ivy_dirname: 'apache-{{ ivy_basename }}'
+ivy_jarfile: '{{ ivy_basename }}.jar'
+

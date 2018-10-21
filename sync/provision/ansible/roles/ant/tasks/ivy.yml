@@ -1,0 +1,37 @@
+---
+- name: Check exists Apache Ivy jar file
+  stat: path='{{ ant_path }}/lib/{{ ivy_jarfile }}'
+  register: is_ivy_jarfile
+  tags: [ 'ivy' ]
+
+- name: Download Apache Ivy archive file
+  get_url:
+    url: '{{ ivy_url }}'
+    dest: '/tmp/{{ ivy_file }}'
+    mode: 0644
+  when: not is_ivy_jarfile.stat.exists
+  tags: [ 'ivy' ]
+
+- name: Unarchive Apache Ivy archive file
+  unarchive:
+    src: '/tmp/{{ ivy_file }}'
+    dest: '/tmp'
+    mode: 0755
+  when: not is_ivy_jarfile.stat.exists
+  tags: [ 'ivy' ]
+
+- name: Copy Apache Ivy jar file
+  copy:
+    src: '/tmp/{{ ivy_dirname }}/{{ ivy_jarfile }}'
+    dest: '{{ ant_path }}/lib'
+    mode: 0755
+  when: not is_ivy_jarfile.stat.exists
+  tags: [ 'ivy' ]
+
+- name: Remove Apache Ivy archive file
+  file:
+    path: '/tmp/{{ ivy_file }}'
+    state: absent
+  when: not is_ivy_jarfile.stat.exists
+  tags: [ 'ivy' ]
+
