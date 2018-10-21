@@ -1,25 +1,45 @@
 ---
-- name: Copy deploy-job.xml template
+- name: Copy build-job-using-maven.xml template
   template:
-    src: 'deploy-job.xml.j2'
-    dest: '{{ app_data_path }}/deploy-job.xml'
+    src: 'build-job-using-maven.xml.j2'
+    dest: '{{ app_data_path }}/build-job-using-maven.xml'
     owner: '{{ tomcat_user }}'
     group: '{{ tomcat_user }}'
     mode: 0644
   tags: [ 'application' ]
 
-- name: Check exists Jenkins job
-  shell: 'java -jar {{ app_bin_path }}/jenkins-cli.jar -s http://localhost:8080/jenkins list-jobs --username {{ jenkins_user }} --password {{ jenkins_password }} | grep {{ app_basename }}'
+- name: Check exists Jenkins job (build using Maven)
+  shell: 'java -jar {{ app_bin_path }}/jenkins-cli.jar -s http://localhost:8080/jenkins list-jobs --username {{ jenkins_user }} --password {{ jenkins_password }} | grep {{ app_basename }}-build-using-maven'
   register: command_result
   failed_when: command_result.rc not in [0, 1]
   tags: [ 'application' ]
 
-- name: Create Jenkins job
-  shell: 'java -jar {{ app_bin_path }}/jenkins-cli.jar -s http://localhost:8080/jenkins create-job {{ app_basename }} --username {{ jenkins_user }} --password {{ jenkins_password }} < {{ app_data_path }}/deploy-job.xml'
+- name: Create Jenkins job (build using Maven)
+  shell: 'java -jar {{ app_bin_path }}/jenkins-cli.jar -s http://localhost:8080/jenkins create-job {{ app_basename }}-build-using-maven --username {{ jenkins_user }} --password {{ jenkins_password }} < {{ app_data_path }}/build-job-using-maven.xml'
+  when: command_result is success and command_result.rc == 1
+  tags: [ 'application' ]
+
+- name: Copy build-job-using-ant.xml template
+  template:
+    src: 'build-job-using-ant.xml.j2'
+    dest: '{{ app_data_path }}/build-job-using-ant.xml'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0644
+  tags: [ 'application' ]
+
+- name: Check exists Jenkins job (build using Ant)
+  shell: 'java -jar {{ app_bin_path }}/jenkins-cli.jar -s http://localhost:8080/jenkins list-jobs --username {{ jenkins_user }} --password {{ jenkins_password }} | grep {{ app_basename }}-build-using-ant'
+  register: command_result
+  failed_when: command_result.rc not in [0, 1]
+  tags: [ 'application' ]
+
+- name: Create Jenkins job (build using Ant)
+  shell: 'java -jar {{ app_bin_path }}/jenkins-cli.jar -s http://localhost:8080/jenkins create-job {{ app_basename }}-build-using-ant --username {{ jenkins_user }} --password {{ jenkins_password }} < {{ app_data_path }}/build-job-using-ant.xml'
   when: command_result is success and command_result.rc == 1
   tags: [ 'application' ]
 
 - name: Execute Jenkins job
-  shell: 'java -jar {{ app_bin_path }}/jenkins-cli.jar -s http://localhost:8080/jenkins build {{ app_basename }} -s --username {{ jenkins_user }} --password {{ jenkins_password }}'
+  shell: 'java -jar {{ app_bin_path }}/jenkins-cli.jar -s http://localhost:8080/jenkins build {{ app_basename }}-build-using-maven -s --username {{ jenkins_user }} --password {{ jenkins_password }}'
   tags: [ 'application' ]
 
