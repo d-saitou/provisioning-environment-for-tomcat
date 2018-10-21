@@ -6,6 +6,7 @@ jenkins_war_path: '{{ app_web_path }}/{{ jenkins_war }}'
 jenkins_home: '{{ app_data_path }}/jenkins'
 
 jenkins_maven_home: '{{ maven_path }}'
+jenkins_ant_home: '{{ ant_path }}'
 jenkins_credentials_userid: 'deploy-user'
 jenkins_credentials_username: '{{ tomcat_deploy_user }}'
 jenkins_credentials_password: '{{ tomcat_deploy_password }}'

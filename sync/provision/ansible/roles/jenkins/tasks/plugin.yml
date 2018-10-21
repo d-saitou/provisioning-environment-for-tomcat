@@ -22,5 +22,16 @@
     - git
     # https://plugins.jenkins.io/deploy
     - deploy
+    # https://plugins.jenkins.io/ant
+    - ant
+  tags: [ 'jenkins' ]
+
+- name: Copy Ant plugin configulation file template
+  template:
+    src: 'hudson.tasks.Ant.xml.j2'
+    dest: '{{ jenkins_home }}/hudson.tasks.Ant.xml'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0644
   tags: [ 'jenkins' ]
 
