@@ -1,6 +1,6 @@
 ---
-maven_major: 3
-maven_version: 3.5.4
+maven_major: '{{ global_maven.major }}' # Refer to /group_vars/ap-servers
+maven_version: '{{ global_maven.version }}' # Refer to /group_vars/ap-servers
 maven_basename: 'apache-maven-{{ maven_version }}'
 maven_basepath: '/opt/maven'
 maven_path: '{{ maven_basepath }}/{{ maven_basename }}'

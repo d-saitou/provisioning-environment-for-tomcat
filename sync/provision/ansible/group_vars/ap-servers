@@ -1,0 +1,39 @@
+---
+# Please set the parameters referring to the following URLs.
+
+# Oracle JDK / Open JDK
+# *This parameter is referenced in /roles/jdk/defaults/main.yml
+global_jdk:
+  version: 'jdk1.8.0_191'
+  url: 'http://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jdk-8u191-linux-x64.rpm'
+  file: 'jdk-8u191-linux-x64.rpm'
+
+global_openjdk_version: '1.8.0'
+
+# Apache Tomcat
+#  url: http://www.apache.org/dist/tomcat/tomcat-8/v{{ global_tomcat_version }}/bin/apache-tomcat-{{ global_tomcat_version }.tar.gz
+#  *This parameter is referenced in /roles/tomcat/defaults/main.yml
+global_tomcat_version: '8.0.53'
+
+# Apache Maven
+#  url: http://www.apache.org/dist/maven/maven-{{ global_maven.major }}/{{ global_maven.version }}/binaries/apache-maven-{{ global_maven.version }}-bin.tar.gz
+#  *This parameter is referenced in /roles/maven/defaults/main.yml
+global_maven:
+  major: '3'
+  version: '3.5.4'
+
+# Apache Ant
+#  url: http://www.apache.org/dist/ant/binaries/apache-ant-{{ global_ant_version }}-bin.tar.gz
+#  *This parameter is referenced in /roles/ant/defaults/main.yml
+global_ant_version: '1.10.5'
+
+# Apache Ivy
+#  url: http://www.apache.org/dist/ant/ivy/{{ global_ivy_version }}/apache-ivy-{{ global_ivy_version }}-bin.tar.gz
+#  *This parameter is referenced in /roles/ant/defaults/main.yml
+global_ivy_version: '2.4.0'
+
+# Jenkins
+#  url: http://mirrors.jenkins-ci.org/war/{{ global_jenkins_version }}/jenkins.war
+#  *This parameter is referenced in /roles/jenkins/defaults/main.yml
+global_jenkins_version: '2.147'
+

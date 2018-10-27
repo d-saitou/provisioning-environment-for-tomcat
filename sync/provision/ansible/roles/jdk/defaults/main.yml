@@ -1,10 +1,10 @@
 ---
 jdk:
-  version: 'jdk1.8.0_191'
-  url: 'http://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jdk-8u191-linux-x64.rpm'
-  file: 'jdk-8u191-linux-x64.rpm'
-        
+  version: '{{ global_jdk.version }}' # Refer to group_vars/ap-servers
+  url: '{{ global_jdk.url }}' # Refer to group_vars/ap-servers
+  file: '{{ global_jdk.file }}' # Refer to group_vars/ap-servers
+
 openjdk:
-  version: '1.8.0'
+  version: '{{ global_openjdk_version }}'
   user: 'vagrant'
 
