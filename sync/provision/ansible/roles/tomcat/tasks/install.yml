@@ -4,12 +4,23 @@
   register: is_tomcat
   tags: [ 'tomcat' ]
 
+- name: Create Tomcat user
+  user: 
+    name: '{{ tomcat_user }}'
+    password: "{{ tomcat_user_password | password_hash('sha512') }}"
+    groups: '{{ app_group }}'
+    append: yes
+    shell: /bin/bash
+    # * Login should be disabled in the production environment.
+    #shell: /sbin/nologin
+  tags: [ 'tomcat' ]
+
 - name: Download Tomcat archive file
-  become: yes
-  become_user: '{{ tomcat_user }}'
   get_url:
     url: '{{ tomcat_url }}'
     dest: '/tmp/{{ tomcat_file }}'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
     mode: 0644
   when: not is_tomcat.stat.exists
   tags: [ 'tomcat' ]

@@ -1,0 +1,17 @@
+---
+- name: Restart Tomcat service
+  become: yes
+  service:
+    name: tomcat
+    state: restarted
+  tags: [ 'tomcat' ]
+
+- name: Wait untils Tomcat web is available (delay - 30 sec)
+  wait_for:
+    host: '{{ inventory_hostname }}'
+    port: 8080
+    state: started
+    delay: 30
+    connect_timeout: 10
+  tags: [ 'tomcat' ]
+

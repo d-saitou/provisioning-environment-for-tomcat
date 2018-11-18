@@ -6,7 +6,7 @@
 
 - name: Clean application
   become: yes
-  become_user: '{{ tomcat_user }}'
+  become_user: '{{ app_user }}'
   shell: 'mvn clean'
   args:
     chdir: '{{ app_path }}'
@@ -15,7 +15,7 @@
 
 - name: Compile application
   become: yes
-  become_user: '{{ tomcat_user }}'
+  become_user: '{{ app_user }}'
   shell: 'mvn compile'
   args:
     chdir: '{{ app_path }}'
@@ -24,7 +24,7 @@
 
 - name: Packaging application
   become: yes
-  become_user: '{{ tomcat_user }}'
+  become_user: '{{ app_user }}'
   shell: 'mvn package'
   args:
     chdir: '{{ app_path }}'

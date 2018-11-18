@@ -8,8 +8,8 @@
   file:
     path: '{{ app_conf_base }}'
     state: directory
-    owner: '{{ tomcat_user }}'
-    group: '{{ tomcat_user }}'
+    owner: '{{ app_user }}'
+    group: '{{ app_group }}'
     mode: 0755
   when: not is_application_config_directory.stat.exists
   tags: [ 'tomcat' ]
@@ -18,8 +18,8 @@
   template:
     src: 'application.properties.j2'
     dest: '{{ app_properties }}'
-    owner: '{{ tomcat_user }}'
-    group: '{{ tomcat_user }}'
+    owner: '{{ app_user }}'
+    group: '{{ app_group }}'
     mode: 0644
   tags: [ 'application' ]
 
@@ -35,8 +35,8 @@
   template:
     src: 'logback.xml.j2'
     dest: '{{ app_logback_config }}'
-    owner: '{{ tomcat_user }}'
-    group: '{{ tomcat_user }}'
+    owner: '{{ app_user }}'
+    group: '{{ app_group }}'
     mode: 0644
   tags: [ 'application' ]
 

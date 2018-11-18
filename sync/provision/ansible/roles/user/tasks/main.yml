@@ -1,0 +1,103 @@
+---
+- name: Check exists application directory
+  stat: path='{{ app_home_path }}'
+  register: is_app_home_path
+  tags: [ 'user' ]
+
+- name: Create application group
+  group:
+    name: '{{ app_group }}'
+  when: not is_app_home_path.stat.exists
+  tags: [ 'user' ]
+
+- name: Create 'app' user
+  user:
+    name: '{{ app_user }}'
+    password: "{{ app_user_password | password_hash('sha512') }}"
+    group: '{{ app_group }}'
+    shell: /bin/bash
+    # * Login should be disabled in the production environment.
+    #shell: /sbin/nologin
+  when: not is_app_home_path.stat.exists
+  tags: [ 'user' ]
+
+- name: Create application home directory
+  file:
+    path: '{{ app_home_path }}'
+    state: directory
+    owner: '{{ app_user }}'
+    group: '{{ app_group }}'
+    mode: 0775
+  when: not is_app_home_path.stat.exists
+  tags: [ 'user' ]
+
+- name: Create application source directory
+  file:
+    path: '{{ app_src_path }}'
+    state: directory
+    owner: '{{ app_user }}'
+    group: '{{ app_group }}'
+    mode: 0775
+  when: not is_app_home_path.stat.exists
+  tags: [ 'user' ]
+
+- name: Create webapps directory
+  file:
+    path: '{{ app_web_path }}'
+    state: directory
+    owner: '{{ app_user }}'
+    group: '{{ app_group }}'
+    mode: 0775
+  when: not is_app_home_path.stat.exists
+  tags: [ 'user' ]
+
+- name: Create application bin directory
+  file:
+    path: '{{ app_bin_path }}'
+    state: directory
+    owner: '{{ app_user }}'
+    group: '{{ app_group }}'
+    mode: 0775
+  when: not is_app_home_path.stat.exists
+  tags: [ 'user' ]
+
+- name: Create application config directory
+  file:
+    path: '{{ app_conf_path }}'
+    state: directory
+    owner: '{{ app_user }}'
+    group: '{{ app_group }}'
+    mode: 0775
+  when: not is_app_home_path.stat.exists
+  tags: [ 'user' ]
+
+- name: Create application data directory
+  file:
+    path: '{{ app_data_path }}'
+    state: directory
+    owner: '{{ app_user }}'
+    group: '{{ app_group }}'
+    mode: 0775
+  when: not is_app_home_path.stat.exists
+  tags: [ 'user' ]
+
+- name: Create application logs directory
+  file:
+    path: '{{ app_logs_path }}'
+    state: directory
+    owner: '{{ app_user }}'
+    group: '{{ app_group }}'
+    mode: 0775
+  when: not is_app_home_path.stat.exists
+  tags: [ 'user' ]
+
+- name: Create application temporary directory
+  file:
+    path: '{{ app_tmp_path }}'
+    state: directory
+    owner: '{{ app_user }}'
+    group: '{{ app_group }}'
+    mode: 0775
+  when: not is_app_home_path.stat.exists
+  tags: [ 'user' ]
+

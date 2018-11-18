@@ -1,0 +1,14 @@
+---
+app_user: 'app'
+app_user_password: 'app'
+app_group: 'appgroup'
+
+app_home_path: '/apps'
+app_web_path: '{{ app_home_path }}/webapps'
+app_bin_path: '{{ app_home_path }}/bin'
+app_conf_path: '{{ app_home_path }}/conf'
+app_src_path: '{{ app_home_path }}/src'
+app_data_path: '{{ app_home_path }}/data'
+app_logs_path: '{{ app_home_path }}/logs'
+app_tmp_path: '{{ app_home_path }}/tmp'
+

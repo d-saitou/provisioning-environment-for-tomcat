@@ -28,6 +28,7 @@
   hosts: ap-servers
   become: yes
   roles:
+    - user
     - jdk
     - maven
     - ant

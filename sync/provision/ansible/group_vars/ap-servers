@@ -32,8 +32,3 @@ global_ant_version: '1.10.5'
 #  *This parameter is referenced in /roles/ant/defaults/main.yml
 global_ivy_version: '2.4.0'
 
-# Jenkins
-#  url: http://mirrors.jenkins-ci.org/war/{{ global_jenkins_version }}/jenkins.war
-#  *This parameter is referenced in /roles/jenkins/defaults/main.yml
-global_jenkins_version: '2.147'
-

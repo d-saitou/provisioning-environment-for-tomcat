@@ -1,22 +1,22 @@
 ---
-- name: Restart Tomcat service
+- name: Restart Jenkins service
   become: yes
   service:
-    name: tomcat
+    name: jenkins
     state: restarted
   tags: [ 'jenkins' ]
 
-- name: Wait untils Tomcat web is available (delay - 30 sec)
+- name: Wait untils Jenkins is available (delay - 30 sec)
   wait_for:
     host: '{{ inventory_hostname }}'
-    port: 8080
+    port: '{{ jenkins_port }}'
     state: started
     delay: 30
     connect_timeout: 10
   tags: [ 'jenkins' ]
 
 - name: Wait untils Jenkins web is available (delay - 30 sec)
-  uri: url='http://{{ inventory_hostname }}:8080/jenkins/login'
+  uri: url='{{ jenkins_url }}'
   register: result
   until: result.status == 200
   retries: 7

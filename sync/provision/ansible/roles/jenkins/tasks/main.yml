@@ -1,6 +1,5 @@
 ---
-- include: deploy.yml
-- include: restart.yml
+- include: install.yml
 - include: config.yml
 - include: restart.yml
 - include: plugin.yml

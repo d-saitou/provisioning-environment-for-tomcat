@@ -6,7 +6,7 @@
 
 - name: Download application from GitHub
   become: yes
-  become_user: '{{ tomcat_user }}'
+  become_user: '{{ app_user }}'
   git: 
     repo: '{{ app_url }}'
     dest: '{{ app_path }}'
