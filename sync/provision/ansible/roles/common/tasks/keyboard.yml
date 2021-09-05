@@ -1,0 +1,3 @@
+---
+- name: Set keyboard layout
+  shell: 'localectl set-keymap {{ keyboard.keymap }}'

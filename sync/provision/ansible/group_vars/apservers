@@ -1,0 +1,9 @@
+---
+# Oracle JDK / Open JDK
+global_openjdk_version: '11'
+
+# Apache Tomcat
+global_tomcat_major_version: '9'
+
+# Apache Maven
+global_maven_major_version: '3'

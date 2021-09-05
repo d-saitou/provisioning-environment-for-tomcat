@@ -1,6 +1,9 @@
 ---
-mysql_rpm_url: 'http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm'
+mysql_rpm_url: 'http://dev.mysql.com/get/mysql80-community-release-el8-1.noarch.rpm'
 
 # *defined by group_vars/all
 #mysql_root_password: 'root'
 
+mysql_db_name: '{{ global_db_name }}'
+mysql_db_user: '{{ global_db_user }}'
+mysql_db_pass: '{{ global_db_pass }}'

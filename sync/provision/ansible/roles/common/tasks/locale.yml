@@ -1,0 +1,8 @@
+---
+- name: Install language pack
+  dnf:
+    name: '{{ locale.package }}'
+    state: present
+
+- name: Set locale
+  shell: 'localectl set-locale LANG={{ locale.lang }}'

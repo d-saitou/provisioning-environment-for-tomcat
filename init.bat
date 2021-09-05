@@ -1,46 +1,34 @@
 @echo off
 
-:: Get vagrant.exe path
+:: get vagrant.exe path
 for /f "usebackq delims=" %%a in (`where vagrant`) do set VAGRANTEXE=%%a
-
 if "%VAGRANTEXE%" equ "" (
-	echo.
 	echo Please install vagrant.
-	echo.
 	pause
 	exit
 )
 
-echo.
-echo ***********************************
-echo  vagrant initialization start!!
-echo ***********************************
-echo.
-
-:: Install vagrant-vbguest plugin
+:: install vagrant-vbguest plugin
 for /f "usebackq tokens=*" %%i IN (`vagrant plugin list`) DO @set RESULT=%%i
 echo %RESULT% | find "vagrant-vbguest" >NUL
 if ERRORLEVEL 1 vagrant plugin install vagrant-vbguest
 
-:: Change current directory
+:: change current directory
 cd /d %~dp0
 
-:: Get tee.exe path
-set TEEEXE=%VAGRANTEXE:\bin\vagrant.exe=%\embedded\usr\bin\tee.exe
-
 :: vagrant up
-set LOGFILE=vagrantup.log
-vagrant up 2>&1 | %TEEEXE% %LOGFILE%
+set TEEEXE=%VAGRANTEXE:\bin\vagrant.exe=%\embedded\usr\bin\tee.exe
+set LOGFILE=init.log
+vagrant up 2>&1 | %TEEEXE% -a %LOGFILE%
 
-:: Check mount vboxsf
-:: 
-:: [Note]
-::  When the kernel is reinstalled at the time of starting the virtual machine,
-::  the version of Vagnrant GuestAdditions does not correspond to the kernel,
-::  so mounting of vboxsf may fail.
-::  Therefore, if mounting of vboxsf fails, execute "yum update" to update the kernel,
-::  then reboot the virtual machine and install Vagrant GuestAdditions again.
-::
+:: check mount point
+type %LOGFILE% | find "umount: /mnt: no mount point specified." >NUL
+if %ERRORLEVEL% == 0 (
+	vagrant ssh --command "sudo mkdir /mnt" 2>&1 | %TEEEXE% -a %LOGFILE%
+	vagrant reload 2>&1 | %TEEEXE% -a %LOGFILE%
+)
+
+:: check mount vboxsf
 set ISMOUNTERROR=FALSE
 
 type %LOGFILE% | find "mount: unknown filesystem type 'vboxsf'" >NUL
@@ -50,16 +38,9 @@ type %LOGFILE% | find "/sbin/mount.vboxsf: mounting failed with the error: No su
 if %ERRORLEVEL% == 0 set ISMOUNTERROR=TRUE
 
 if %ISMOUNTERROR% == TRUE (
-	vagrant ssh --command "sudo yum update -y" 2>&1 | %TEEEXE% %LOGFILE%
-	vagrant reload 2>&1 | %TEEEXE% %LOGFILE%
+	vagrant ssh --command "sudo yum -y update" 2>&1 | %TEEEXE% -a %LOGFILE%
+	vagrant ssh --command "sudo yum -y install gcc gcc-c++ make bzip2 kernel-headers kernel-devel elfutils-libelf-devel perl tar" 2>&1 | %TEEEXE% -a %LOGFILE%
+	vagrant reload 2>&1 | %TEEEXE% -a %LOGFILE%
 )
-
-del /Q %LOGFILE% 2>&1
-
-echo.
-echo ***********************************
-echo  vagrant initialization finished!!
-echo ***********************************
-echo.
 
 pause

@@ -1,10 +1,9 @@
 #!/bin/bash
 # 
-# Provisioning script for Tomcat 8 application
+# Provisioning script for Tomcat application
 # 
 # auther: d-saitou
-# version: 1.00
-# release: 2018/03/03
+# release: 2021/09/05
 # 
 readonly LOG=./provision.`date +"%Y%m%d%H%M%S"`.log
 readonly ANSIBLELOGDIR=./ansible
@@ -19,7 +18,9 @@ function main() {
 	fi
 	
 	# Execute provisioning
-	provision 2>&1 | tee ${LOG}
+	provision 2>&1 | while read LINE; do
+		echo "$(date +"%Y/%m/%d %H:%M:%S") ${LINE}"
+	done | tee ${LOG}
 	
 	return 0
 }
@@ -28,9 +29,9 @@ function provision() {
 	
 	# Display start message
 	echo " "
-	echo "*************************"
+	echo "********************************************************************************"
 	echo " Provisioning start..."
-	echo "*************************"
+	echo "********************************************************************************"
 	echo " "
 	
 	# Install ansible
@@ -55,22 +56,22 @@ function provision() {
 	
 	# Execute ansible playbook
 	cd ${PLAYBOOKDIR}
-	#ansible-playbook -v -i hosts -l app-group site.yml
-	ansible-playbook -i hosts -l app-group site.yml
+	#ansible-playbook -v -i hosts -l appgroup site.yml
+	ansible-playbook -i hosts -l appgroup site.yml
 	RESULT=${?}
 	
 	# Display end message
 	if [ ${RESULT} -eq 0 ] ; then
 		echo " "
-		echo "*************************"
+		echo "********************************************************************************"
 		echo " Provisioning completed!"
-		echo "*************************"
+		echo "********************************************************************************"
 		echo " "
 	else
 		echo " "
-		echo "*************************"
+		echo "********************************************************************************"
 		echo " Provisioning failed!"
-		echo "*************************"
+		echo "********************************************************************************"
 		echo " "
 	fi
 	

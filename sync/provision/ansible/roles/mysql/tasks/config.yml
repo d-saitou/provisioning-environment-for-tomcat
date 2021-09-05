@@ -1,0 +1,45 @@
+---
+- name: Check exists my.cnf backup
+  stat:
+    path: '/etc/my.cnf.bak'
+  register: is_my_cnf_backup
+  changed_when: no
+
+- name: Backup my.cnf
+  copy:
+    src: '/etc/my.cnf'
+    dest: '/etc/my.cnf.bak'
+    owner: root
+    group: root
+    mode: 0644
+  when: not is_my_cnf_backup.stat.exists
+
+- name: Copy my.cnf
+  copy:
+    src: 'my.cnf'
+    dest: '/etc/my.cnf'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Restart mysql
+  systemd:
+    name: mysqld
+    state: restarted
+    enabled: yes
+
+- name: Check if root user password has been updated
+  shell: mysql -u root -p'{{ mysql_root_password }}' -e "SELECT 1"
+  register: is_root_login_ok
+  changed_when: no
+  ignore_errors: true
+
+- name: Get the initial password for root user
+  shell: grep 'A temporary password is generated for root@localhost' /var/log/mysqld.log | awk '{print $NF}'
+  register: root_password
+  changed_when: no
+  when: is_root_login_ok.rc == 1
+
+- name: Update root user password
+  command: mysql -u root -p'{{ root_password.stdout }}' --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';"
+  when: is_root_login_ok.rc == 1

@@ -1,5 +1,5 @@
 ---
 - name: Install git
-  yum: name=git state=latest
-  tags: [ 'git' ]
-
+  dnf:
+    name: git
+    state: latest

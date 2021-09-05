@@ -1,0 +1,41 @@
+---
+- name: Check exists MySQL
+  stat:
+    path: '/usr/bin/mysql'
+  register: is_mysql
+
+- name: Uninstall MySQL current version.
+  dnf:
+    name: [ 'mysql*', 'mariadb*' ]
+    state: absent
+  when: not is_mysql.stat.exists
+
+- name: Install RPM-GPG-KEY-mysql
+  rpm_key:
+    state: present
+    key: 'https://repo.mysql.com/RPM-GPG-KEY-mysql'
+  when: not is_mysql.stat.exists
+
+- name: Add MySQL rpm package
+  dnf:
+    name: '{{ mysql_rpm_url }}'
+    state: present
+  when: not is_mysql.stat.exists
+
+- name: Disable MySQL module stream.
+  shell: 'dnf -y module disable mysql'
+  when: not is_mysql.stat.exists
+  args:
+    warn: false
+
+- name: Install MySQL
+  dnf:
+    name: [ 'mysql-community-devel', 'mysql-community-server' ]
+    state: present
+  when: not is_mysql.stat.exists
+
+- name: Install mysql plugin for python
+  dnf:
+    name: python3-PyMySQL
+    state: present
+  when: not is_mysql.stat.exists

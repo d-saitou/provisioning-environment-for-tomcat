@@ -1,3 +1,212 @@
 ---
-- include: install.yml
+- name: get the latest version number of Tomcat
+  shell: 'curl -Ls {{ tomcat_url }} | grep -Eo "<a.*>(.*?)<\/a>" | sed -e "s/<[^>]*>//g" | grep v{{ tomcat_major_version }}. | sed "s/\///g" | sed -e "s/v//g" | tail -1'
+  register: tomcat_version
+  changed_when: no
+  args:
+    warn: false
 
+- name: Check exists Tomcat directory
+  stat:
+    path: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}'
+  register: is_tomcat
+  changed_when: no
+
+- name: Create Tomcat user
+  user:
+    name: '{{ tomcat_user }}'
+    password: "{{ tomcat_user_password | password_hash('sha512') }}"
+    groups: [ '{{ item }}' ]
+    append: yes
+    shell: /bin/bash
+    # * Login should be disabled in the production environment.
+    #shell: /sbin/nologin
+  with_items: '{{ tomcat_user_groups }}'
+  when: not is_tomcat.stat.exists
+
+- name: Download Tomcat archive file
+  get_url:
+    url: '{{ tomcat_url }}/v{{ tomcat_version.stdout }}/bin/apache-tomcat-{{ tomcat_version.stdout }}.tar.gz'
+    dest: '/tmp/apache-tomcat-{{ tomcat_version.stdout }}.tar.gz'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0644
+  when: not is_tomcat.stat.exists
+
+- name: Create Tomcat base directory
+  file:
+    path: '{{ tomcat_basepath }}'
+    state: directory
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0755
+  when: not is_tomcat.stat.exists
+
+- name: Unarchive Tomcat archive file
+  become: yes
+  become_user: '{{ tomcat_user }}'
+  unarchive:
+    src: '/tmp/apache-tomcat-{{ tomcat_version.stdout }}.tar.gz'
+    dest: '{{ tomcat_basepath }}'
+    mode: 0755
+  when: not is_tomcat.stat.exists
+
+- name: Remove Tomcat archive file
+  become: yes
+  become_user: '{{ tomcat_user }}'
+  file:
+    path: '/tmp/apache-tomcat-{{ tomcat_version.stdout }}.tar.gz'
+    state: absent
+  when: not is_tomcat.stat.exists
+
+- name: Check exists server.xml backup
+  stat:
+    path: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}/conf/server.xml.bak'
+  register: is_server_xml_backup
+  changed_when: no
+
+- name: Check exists webapps directory
+  stat:
+    path: '{{ tomcat_webapps_path }}'
+  register: is_tomcat_webapps_path
+  changed_when: no
+
+- name: Backup server.xml
+  copy:
+    src: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}/conf/server.xml'
+    dest: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}/conf/server.xml.bak'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0644
+  when: not is_server_xml_backup.stat.exists and is_tomcat_webapps_path.stat.exists
+
+- name: Set webapps directory to server.xml
+  replace:
+    dest: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}/conf/server.xml'
+    regexp: 'appBase="webapps"'
+    replace: 'appBase="{{ tomcat_webapps_path }}"'
+  when: not is_server_xml_backup.stat.exists and is_tomcat_webapps_path.stat.exists
+
+- name: Create Tomcat manager link to webapps directory
+  file:
+    src: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}/webapps/manager'
+    dest: '{{ tomcat_webapps_path }}/manager'
+    state: link
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+  when: not is_server_xml_backup.stat.exists and is_tomcat_webapps_path.stat.exists
+
+- name: Check exists Tomcat manager context.xml backup
+  stat:
+    path: '{{ tomcat_webapps_path }}/manager/META-INF/context.xml.bak'
+  register: is_manager_context_xml_backup
+  changed_when: no
+
+- name: Backup Tomcat manager context.xml
+  copy:
+    remote_src: true
+    src: '{{ tomcat_webapps_path }}/manager/META-INF/context.xml'
+    dest: '{{ tomcat_webapps_path }}/manager/META-INF/context.xml.bak'
+  when: tomcat_manager_allow_access is defined and not is_manager_context_xml_backup.stat.exists
+
+- name: Set access to Tomcat manager context
+  replace:
+    dest: '{{ tomcat_webapps_path }}/manager/META-INF/context.xml'
+    regexp: 'allow=".*"'
+    replace: 'allow="{{ tomcat_manager_allow_access }}"'
+  when: tomcat_manager_allow_access is defined and not is_manager_context_xml_backup.stat.exists
+
+- name: Check exists tomcat-users.xml
+  stat:
+    path: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}/conf/tomcat-users.xml'
+  register: is_tomcat_users_xml
+  changed_when: no
+
+- name: Check exists tomcat-users.xml backup
+  stat:
+    path: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}/conf/tomcat-users.xml.bak'
+  register: is_tomcat_users_xml_backup
+  changed_when: no
+
+- name: Backup tomcat-users.xml
+  copy:
+    src: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}/conf/tomcat-users.xml'
+    dest: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}/conf/tomcat-users.xml.bak'
+    owner: '{{ tomcat_user }}'
+    group: '{{ tomcat_user }}'
+    mode: 0644
+  when: not is_tomcat_users_xml_backup.stat.exists
+
+- name: Set Tomcat manager user
+  become: yes
+  become_user: '{{ tomcat_user }}'
+  blockinfile:
+    path: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}/conf/tomcat-users.xml'
+    block: |
+        <role rolename="manager-gui"/>
+        <user username="{{ tomcat_manager_user }}" password="{{ tomcat_manager_password }}" roles="manager-gui"/>
+    insertbefore: '^</tomcat-users>.*'
+    marker: '  <!-- {mark} ANSIBLE MANAGED BLOCK [Tomcat] -->'
+  when: not (lookup('file', is_tomcat_users_xml.stat.path) is match('^<role rolename="manager-gui"/>'))
+
+- name: Set Tomcat manager deployment user
+  become: yes
+  become_user: '{{ tomcat_user }}'
+  blockinfile:
+    path: '{{ tomcat_basepath }}/apache-tomcat-{{ tomcat_version.stdout }}/conf/tomcat-users.xml'
+    block: |
+        <role rolename="manager-script"/>
+        <user username="{{ tomcat_deploy_user }}" password="{{ tomcat_deploy_password }}" roles="manager-script"/>
+    insertbefore: '^</tomcat-users>.*'
+    marker: '  <!-- {mark} ANSIBLE MANAGED BLOCK [Tomcat Deploy] -->'
+  when: not (lookup('file', is_tomcat_users_xml.stat.path) is match('^<role rolename="manager-script"/>'))
+
+- name: Check exists tomcat.sh
+  stat:
+    path: '/etc/profile.d/tomcat.sh'
+  register: is_tomcat_sh
+  changed_when: no
+
+- name: Copy tomcat.sh template
+  template:
+    src: 'tomcat.sh.j2'
+    dest: '/etc/profile.d/tomcat.sh'
+    owner: root
+    group: root
+    mode: 0644
+  when: not is_tomcat_sh.stat.exists
+
+- name: Copy tomcat start/stop script template
+  template:
+    src: 'tomcat.j2'
+    dest: '/usr/local/bin/tomcat'
+    owner: root
+    group: root
+    mode: 0744
+  when: not is_tomcat_sh.stat.exists
+
+- name: Copy Tomcat service unit
+  copy:
+    src: 'tomcat.service'
+    dest: '/etc/systemd/system/tomcat.service'
+    owner: root
+    group: root
+    mode: 0755
+  when: not is_tomcat_sh.stat.exists
+
+- name: Start Tomcat service
+  become: yes
+  systemd:
+    name: tomcat
+    state: started
+    enabled: yes
+  when: not is_tomcat_sh.stat.exists
+
+- name: wait untils Tomcat web is available (delay - 10 sec)
+  wait_for:
+    host: '{{ inventory_hostname }}'
+    port: 8080
+    state: started
+    delay: 10
+    connect_timeout: 18
+  when: not is_tomcat_sh.stat.exists

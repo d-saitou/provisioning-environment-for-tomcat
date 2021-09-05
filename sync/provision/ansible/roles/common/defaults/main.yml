@@ -1,13 +1,10 @@
 ---
 locale:
-  lang: 'ja_JP.UTF-8'
+  package: 'glibc-langpack-ja'
+  lang: 'ja_JP.utf8'
 
 keyboard:
-  keytable: 'jp106'
-  model: 'jp106'
-  layout: 'jp'
+  keymap: 'jp106'
 
 timezone:
-  zoneinfo: 'Japan'
   zone: 'Asia/Tokyo'
-

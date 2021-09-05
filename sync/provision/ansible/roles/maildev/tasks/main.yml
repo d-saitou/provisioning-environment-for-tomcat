@@ -1,0 +1,38 @@
+---
+- name: Check exists maildev
+  stat:
+    path: '/usr/local/bin/maildev.sh'
+  register: is_maildev
+  changed_when: no
+
+- name: install maildev
+  npm:
+    name: maildev
+    global: yes
+  when: not is_maildev.stat.exists
+
+- name: Copy maildev startup script
+  copy:
+    src: 'maildev.sh'
+    dest: '/usr/local/bin/maildev.sh'
+    owner: root
+    group: root
+    mode: 0744
+  when: not is_maildev.stat.exists
+
+- name: Copy maildev systemd unit file
+  copy:
+    src: 'maildev.service'
+    dest: '/etc/systemd/system/maildev.service'
+    owner: root
+    group: root
+    mode: 0755
+  when: not is_maildev.stat.exists
+
+- name: Start maildev service
+  become: yes
+  systemd:
+    name: maildev
+    state: started
+    enabled: yes
+  when: not is_maildev.stat.exists

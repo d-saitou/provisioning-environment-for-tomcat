@@ -1,0 +1,26 @@
+---
+- name: Check if database tables exist
+  shell: 'mysql -u {{ app_db_user }} -p{{ app_db_pass }} {{ app_db_name }} -sN -e "show tables" | wc -l'
+  register: table_count
+  ignore_errors: true
+
+- name: Get a list of DDL files and DML files
+  find:
+    paths: [ '{{ app_sources_path }}/data/db' ]
+    patterns: '*.sql'
+    file_type: file
+    recurse: yes
+  register: ddls_and_dmls
+  ignore_errors: true
+  when: table_count.stdout == "0"
+
+- name: Run DDL files and DML files
+  mysql_db:
+    state: import
+    name: '{{ app_db_name }}'
+    target: "{{ item.path }}"
+    encoding: utf8
+    login_user: '{{ app_db_user }}'
+    login_password: '{{ app_db_pass }}'
+  with_items: "{{ ddls_and_dmls.files }}"
+  when: table_count.stdout == "0"

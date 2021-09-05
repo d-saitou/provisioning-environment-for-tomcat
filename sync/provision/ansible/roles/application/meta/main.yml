@@ -5,4 +5,4 @@ dependencies:
   - { role: tomcat }
   - { role: maven }
   - { role: jenkins }
-
+  - { role: maildev }

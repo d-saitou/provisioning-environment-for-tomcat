@@ -1,26 +1,21 @@
 #!/bin/sh
 #
-# Tomcat8: Start/Stop Tomcat 8
+# Tomcat start/stop script
 #
-# chkconfig: - 90 10
-# description: Tomcat auto start-up script.
-#
-
-. /etc/rc.d/init.d/functions
 . /etc/profile.d/tomcat.sh
 
 TOMCAT_USER={{ tomcat_user }}
 
-start(){
+start() {
 	echo "Starting Tomcat8: "
 	su -s /bin/bash - ${TOMCAT_USER} -c "${CATALINA_HOME}/bin/startup.sh"
-	return $?
+	return ${?}
 }
 
-stop(){
+stop() {
 	echo "Shutting down Tomcat8: "
 	su -s /bin/bash - ${TOMCAT_USER} -c "${CATALINA_HOME}/bin/shutdown.sh"
-	return $?
+	return ${?}
 }
 
 case "$1" in

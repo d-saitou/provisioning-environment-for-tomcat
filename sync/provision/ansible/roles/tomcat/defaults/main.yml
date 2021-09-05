@@ -1,14 +1,14 @@
 ---
+tomcat_major_version: '{{ global_tomcat_major_version }}'
+tomcat_url: https://downloads.apache.org/tomcat/tomcat-{{ tomcat_major_version }}/
+tomcat_basepath: '/opt/tomcat'
+tomcat_webapps_path: '{{ apps_web_path }}'
 tomcat_user: 'tomcat'
 tomcat_user_password: 'tomcat'
-tomcat_version: '{{ global_tomcat_version }}' # Refer to group_vars/ap-servers
-tomcat_basename: 'apache-tomcat-{{ tomcat_version }}'
-tomcat_basepath: '/opt/tomcat'
-tomcat_path: '{{ tomcat_basepath }}/{{ tomcat_basename }}'
-tomcat_file: '{{ tomcat_basename }}.tar.gz'
-tomcat_url: 'http://www.apache.org/dist/tomcat/tomcat-8/v{{ tomcat_version }}/bin/{{ tomcat_file }}'
+tomcat_user_groups:
+  - '{{ apps_group }}'
+tomcat_manager_allow_access: 127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1|192\.\d+\.\d+\.\d+
 tomcat_manager_user: 'admin'
-tomcat_manager_password: 'root'
+tomcat_manager_password: 'admin'
 tomcat_deploy_user: 'deploy'
 tomcat_deploy_password: 'deploy'
-

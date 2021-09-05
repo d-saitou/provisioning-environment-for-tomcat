@@ -1,44 +1,47 @@
 ---
+- name: Add subgroups (tomcat, jenkins) to application user
+  user:
+    name: '{{ apps_user }}'
+    groups: [ 'tomcat', 'jenkins' ]
+    append: yes
+
 - name: Check exists application config directory
-  stat: path={{ app_conf_base }}
+  stat:
+    path: '{{ app_conf_base }}'
   register: is_application_config_directory
-  tags: [ 'application' ]
+  changed_when: no
 
 - name: Create application config directory
   file:
     path: '{{ app_conf_base }}'
     state: directory
-    owner: '{{ app_user }}'
-    group: '{{ app_group }}'
+    owner: '{{ apps_user }}'
+    group: '{{ apps_group }}'
     mode: 0755
   when: not is_application_config_directory.stat.exists
-  tags: [ 'tomcat' ]
 
-- name: Copy application.properties
+- name: Copy application.properties template
   template:
     src: 'application.properties.j2'
     dest: '{{ app_properties }}'
-    owner: '{{ app_user }}'
-    group: '{{ app_group }}'
+    owner: '{{ apps_user }}'
+    group: '{{ apps_group }}'
     mode: 0644
-  tags: [ 'application' ]
 
 - name: Set application.properties path
   lineinfile:
     path: '/etc/profile.d/tomcat.sh'
     state: present
-    line: 'export JAVA_OPTS=$JAVA_OPTS" -Dspring4mvcexample.configurationFile={{ app_properties }}"'
-  when: not (lookup('file', '/etc/profile.d/tomcat.sh') is match('.*spring4mvcexample.*'))
-  tags: [ 'application' ]
+    line: 'export JAVA_OPTS=$JAVA_OPTS" -DspringMvcExample.configurationFile={{ app_properties }}"'
+  when: not (lookup('file', '/etc/profile.d/tomcat.sh') is match('.*springMvcExample.*'))
 
-- name: Copy logback.xml
+- name: Copy logback.xml template
   template:
     src: 'logback.xml.j2'
     dest: '{{ app_logback_config }}'
-    owner: '{{ app_user }}'
-    group: '{{ app_group }}'
+    owner: '{{ apps_user }}'
+    group: '{{ apps_group }}'
     mode: 0644
-  tags: [ 'application' ]
 
 - name: Set logback.xml path
   lineinfile:
@@ -46,5 +49,6 @@
     state: present
     line: 'export JAVA_OPTS=$JAVA_OPTS" -Dlogback.configurationFile={{ app_logback_config }}"'
   when: not (lookup('file', '/etc/profile.d/tomcat.sh') is match('.*logback.*'))
-  tags: [ 'application' ]
 
+- include: ../tomcat/tasks/restart.yml
+  when: not is_application_config_directory.stat.exists

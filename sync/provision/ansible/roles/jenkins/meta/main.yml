@@ -1,7 +1,5 @@
 ---
 dependencies:
-  - { role: user }
   - { role: maven }
-  - { role: ant }
   - { role: tomcat }
-
+  - { role: git }

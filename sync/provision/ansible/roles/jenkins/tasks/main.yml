@@ -1,8 +1,3 @@
 ---
 - include: install.yml
 - include: config.yml
-- include: restart.yml
-- include: plugin.yml
-- include: restart.yml
-- include: credential.yml
-

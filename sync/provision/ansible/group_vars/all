@@ -1,3 +1,6 @@
 ---
-mysql_root_password: 'root'
-
+# MySQL configuration
+mysql_root_password: 'Adm1N@1234'
+global_db_name: 'example'
+global_db_user: 'example'
+global_db_pass: 'example'

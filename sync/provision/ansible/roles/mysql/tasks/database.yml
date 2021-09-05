@@ -1,0 +1,31 @@
+---
+- name: Check exists database
+  shell: 'mysql -u root -p{{ mysql_root_password }} -sN -e "show databases" | grep {{ mysql_db_name }}'
+  register: db_status
+  changed_when: no
+  failed_when: db_status.rc == 2
+
+- name: Create database
+  mysql_db:
+    name: '{{ mysql_db_name }}'
+    state: present
+    login_user: 'root'
+    login_password: '{{ mysql_root_password }}'
+  when: db_status.rc == 1
+
+- name: Create user
+  mysql_user:
+    host: '{{ item }}'
+    name: '{{ mysql_db_user }}'
+    password: '{{ mysql_db_pass }}'
+    append_privs: yes
+    priv: '{{ mysql_db_name }}.*:ALL'
+    state: present
+    login_user: 'root'
+    login_password: '{{ mysql_root_password }}'
+  with_items:
+    - '{{ ansible_hostname }}'
+    - 127.0.0.1
+    - ::1
+    - localhost
+    - '192.168.33.%'

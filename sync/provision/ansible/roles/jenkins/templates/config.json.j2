@@ -1,0 +1,28 @@
+{
+  "user": {
+    "name": "{{ jenkins_app_user }}",
+    "pass": "{{ jenkins_app_pass }}"
+  },
+  "url": "{{ jenkins_url }}",
+  "plugins": [
+    "credentials",
+    "git",
+    "deploy"
+  ],
+  "maven": {
+    "name": "{{ jenkins_maven_name }}",
+    "install_mode": "installed",
+    "install_version": "",
+    "installed_path": "{{ m2_home.stdout }}"
+  },
+  "credentials": {
+    "usename_password_credentials": [
+      {
+        "user_id": "{{ jenkins_credentials_userid }}",
+        "user_name": "{{ jenkins_credentials_username }}",
+        "user_pass": "{{ jenkins_credentials_password }}",
+        "user_desc": "{{ jenkins_credentials_description }}"
+      }
+    ]
+  }
+}

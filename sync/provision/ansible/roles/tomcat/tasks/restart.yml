@@ -1,17 +1,15 @@
 ---
 - name: Restart Tomcat service
   become: yes
-  service:
+  systemd:
     name: tomcat
     state: restarted
-  tags: [ 'tomcat' ]
+    enabled: yes
 
-- name: Wait untils Tomcat web is available (delay - 30 sec)
+- name: Wait untils Tomcat web is available (delay - 10 sec)
   wait_for:
     host: '{{ inventory_hostname }}'
     port: 8080
     state: started
-    delay: 30
-    connect_timeout: 10
-  tags: [ 'tomcat' ]
-
+    delay: 10
+    connect_timeout: 18

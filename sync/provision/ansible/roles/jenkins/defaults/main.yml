@@ -1,19 +1,14 @@
 ---
 jenkins_home: '/var/lib/jenkins'
 jenkins_user: 'jenkins'
-jenkins_user_password: 'jenkins'
 jenkins_port: '18080'
 jenkins_url: 'http://localhost:{{ jenkins_port }}/'
-jenkins_java_options: '-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false'
-
+jenkins_java_options: '-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dhudson.model.UpdateCenter.pluginDownloadReadTimeoutSeconds=300'
+jenkins_debug_level: '5'
 jenkins_app_user: 'admin'
-jenkins_app_password: 'root'
-
-jenkins_maven_home: '{{ maven_path }}'
-jenkins_ant_home: '{{ ant_path }}'
-
+jenkins_app_pass: 'admin'
+jenkins_maven_name: 'maven3'
 jenkins_credentials_userid: 'deploy-user'
 jenkins_credentials_username: '{{ tomcat_deploy_user }}'
 jenkins_credentials_password: '{{ tomcat_deploy_password }}'
 jenkins_credentials_description: 'Tomcat deploy user'
-

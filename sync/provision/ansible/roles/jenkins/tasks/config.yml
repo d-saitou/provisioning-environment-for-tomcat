@@ -1,56 +1,158 @@
 ---
-- name: Check exists JENKINS_HOME
-  stat: path='{{ jenkins_home }}'
-  register: is_jenkins_home
-  tags: [ 'jenkins' ]
+- name: Check exists jenkins sysconfig backup
+  stat:
+    path: '/etc/sysconfig/jenkins.bak'
+  register: is_jenkins_sysconfig_backup
+  changed_when: no
 
-- name: Copy Maven configulation file template
-  template:
-    src: 'hudson.tasks.Maven.xml.j2'
-    dest: '{{ jenkins_home }}/hudson.tasks.Maven.xml'
-    owner: '{{ jenkins_user }}'
-    group: '{{ jenkins_user }}'
-    mode: 0644
-  when: is_jenkins_home.stat.exists
-  tags: [ 'jenkins' ]
+- name: Backup jenkins sysconfig
+  copy:
+    src: '/etc/sysconfig/jenkins'
+    dest: '/etc/sysconfig/jenkins.bak'
+    owner: root
+    group: root
+    mode: 0600
+  when: not is_jenkins_sysconfig_backup.stat.exists
 
-- name: Create Jenkins initialize script directory
+- name: Set JENKINS_HOME
+  lineinfile:
+    path: '/etc/sysconfig/jenkins'
+    state: present
+    regexp: '.*JENKINS_HOME=.*'
+    line: 'JENKINS_HOME="{{ jenkins_home }}"'
+  when: not is_jenkins_sysconfig_backup.stat.exists
+
+- name: Set JENKINS_PORT
+  lineinfile:
+    path: '/etc/sysconfig/jenkins'
+    state: present
+    regexp: '.*JENKINS_PORT=.*'
+    line: 'JENKINS_PORT="{{ jenkins_port }}"'
+  when: not is_jenkins_sysconfig_backup.stat.exists
+
+- name: Set JENKINS_JAVA_OPTIONS
+  lineinfile:
+    path: '/etc/sysconfig/jenkins'
+    state: present
+    regexp: '.*JENKINS_JAVA_OPTIONS=.*'
+    line: 'JENKINS_JAVA_OPTIONS="{{ jenkins_java_options }}"'
+  when: not is_jenkins_sysconfig_backup.stat.exists
+
+- name: Set JENKINS_DEBUG_LEVEL
+  lineinfile:
+    path: '/etc/sysconfig/jenkins'
+    state: present
+    regexp: '.*JENKINS_DEBUG_LEVEL=.*'
+    line: 'JENKINS_DEBUG_LEVEL="{{ jenkins_debug_level }}"'
+  when: not is_jenkins_sysconfig_backup.stat.exists
+
+- name: Set JENKINS_INSTALL_SKIP_CHOWN
+  lineinfile:
+    path: '/etc/sysconfig/jenkins'
+    state: present
+    regexp: '.*JENKINS_INSTALL_SKIP_CHOWN=.*'
+    line: 'JENKINS_INSTALL_SKIP_CHOWN="true"'
+  when: not is_jenkins_sysconfig_backup.stat.exists
+
+- name: Check exists init.groovy.d directory
+  stat:
+    path: '{{ jenkins_home }}/init.groovy.d'
+  register: is_init_groovy_d
+  changed_when: no
+
+- name: Create init.groovy.d directory
   file:
     path: '{{ jenkins_home }}/init.groovy.d'
     state: directory
     owner: '{{ jenkins_user }}'
     group: '{{ jenkins_user }}'
-    mode: 0755
-  when: is_jenkins_home.stat.exists
-  tags: [ 'tomcat' ]
+  when: not is_init_groovy_d.stat.exists
 
-- name: Copy Jenkins initialize script template
+- name: Get Maven home path to set in configuration file
+  shell: "bash -lc env | grep M2_HOME | sed -e 's/=/ /g' | awk '{print $2}'"
+  register: m2_home
+  changed_when: no
+  when: not is_init_groovy_d.stat.exists
+
+- name: Copy configulation file template
   template:
-    src: 'basic-security.groovy.j2'
-    dest: '{{ jenkins_home }}/init.groovy.d/basic-security.groovy'
+    src: 'config.json.j2'
+    dest: '{{ jenkins_home }}/init.groovy.d/config.json'
     owner: '{{ jenkins_user }}'
     group: '{{ jenkins_user }}'
-    mode: 0755
-  when: is_jenkins_home.stat.exists
-  tags: [ 'jenkins' ]
+  when: not is_init_groovy_d.stat.exists
 
-- name: Copy Jenkins backup script
+- name: Copy configuration scripts
   copy:
-    src: 'jenkins-backup.sh'
-    dest: '{{ app_bin_path }}/jenkins-backup.sh'
+    src: '{{ item.src }}'
+    dest: '{{ jenkins_home }}/init.groovy.d/{{ item.dest }}'
     owner: '{{ jenkins_user }}'
     group: '{{ jenkins_user }}'
-    mode: 0755
-  when: is_jenkins_home.stat.exists
-  tags: [ 'jenkins' ]
+  with_items:
+    - { src: '0_StartupCheck.groovy', dest: '0_StartupCheck.groovy' }
+    - { src: '1_SecurityAndLocationConfig.groovy', dest: '1_SecurityAndLocationConfig.groovy' }
+    - { src: '2_PluginInstall.groovy', dest: '2_PluginInstall.groovy' }
+    - { src: '3_MavenInstall.groovy', dest: '3_MavenInstall.groovy' }
+    - { src: '4_CredentialsConfig.groovy', dest: '4_CredentialsConfig.groovy' }
+    - { src: '5_CompletionCheck.groovy', dest: '5_CompletionCheck.groovy' }
+  when: not is_init_groovy_d.stat.exists
 
-- name: Copy Jenkins restore script
-  copy:
-    src: 'jenkins-restore.sh'
-    dest: '{{ app_bin_path }}/jenkins-restore.sh'
+- name: Restart Jenkins service
+  become: yes
+  systemd:
+    name: jenkins
+    state: restarted
+    enabled: yes
+  when: not is_init_groovy_d.stat.exists
+
+- name: Wait untils Jenkins is available (delay - 10 sec)
+  wait_for:
+    host: '{{ inventory_hostname }}'
+    port: '{{ jenkins_port }}'
+    state: started
+    delay: 10
+    connect_timeout: 18
+  when: not is_init_groovy_d.stat.exists
+
+- name: Wait for all configuration scripts to complete (timeout - 360 sec)
+  wait_for:
+    path: '{{ jenkins_home }}/init.groovy.d/flag/configuration.flg'
+    timeout: 360
+  when: not is_init_groovy_d.stat.exists
+
+- name: Check the result of the configuration scripts
+  shell: 'cat {{ jenkins_home }}/init.groovy.d/flag/configuration.flg'
+  register: configuration_result
+  when: not is_init_groovy_d.stat.exists
+  failed_when: "'FAILURE' in configuration_result.stdout"
+
+- name: remove init.groovy.d directory
+  file:
+    path: '{{ jenkins_home }}/init.groovy.d'
+    state: absent
+  when: not is_init_groovy_d.stat.exists
+
+- name: Create init.groovy.d directory
+  file:
+    path: '{{ jenkins_home }}/init.groovy.d'
+    state: directory
     owner: '{{ jenkins_user }}'
     group: '{{ jenkins_user }}'
-    mode: 0755
-  when: is_jenkins_home.stat.exists
-  tags: [ 'jenkins' ]
+  when: not is_init_groovy_d.stat.exists
 
+- name: Restart Jenkins service
+  become: yes
+  systemd:
+    name: jenkins
+    state: restarted
+    enabled: yes
+  when: not is_init_groovy_d.stat.exists
+
+- name: Wait untils Jenkins is available (delay - 10 sec)
+  wait_for:
+    host: '{{ inventory_hostname }}'
+    port: '{{ jenkins_port }}'
+    state: started
+    delay: 10
+    connect_timeout: 18
+  when: not is_init_groovy_d.stat.exists

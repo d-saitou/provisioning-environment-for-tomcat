@@ -1,6 +1,11 @@
 ---
-- include: gnome-centos6.yml
-  when: >
-    ansible_distribution == 'CentOS'
-    and ansible_distribution_major_version == '6'
+- name: Install desktop
+  dnf:
+    name: '@Server with GUI'
+    state: present
 
+- name: Change default.target to graphical.target
+  file:
+    src: /usr/lib/systemd/system/graphical.target
+    dest: /etc/systemd/system/default.target
+    state: link

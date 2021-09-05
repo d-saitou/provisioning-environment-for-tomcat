@@ -1,10 +1,2 @@
 ---
-jdk:
-  version: '{{ global_jdk.version }}' # Refer to group_vars/ap-servers
-  url: '{{ global_jdk.url }}' # Refer to group_vars/ap-servers
-  file: '{{ global_jdk.file }}' # Refer to group_vars/ap-servers
-
-openjdk:
-  version: '{{ global_openjdk_version }}'
-  user: 'vagrant'
-
+openjdk_version: '{{ global_openjdk_version }}'

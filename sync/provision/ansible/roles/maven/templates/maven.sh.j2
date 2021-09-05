@@ -1,4 +1,3 @@
-JRE_HOME=/usr/java/default
-M2_HOME={{ maven_path }}
+M2_HOME={{ maven_basepath }}/apache-maven-{{ maven_version.stdout }}
 PATH=$PATH:$M2_HOME/bin
-export JRE_HOME M2_HOME PATH
+export M2_HOME PATH

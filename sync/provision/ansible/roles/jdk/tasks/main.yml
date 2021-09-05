@@ -1,4 +1,18 @@
 ---
-- include: jdk.yml
-#- include: openjdk.yml
+- name: Check exists Open JDK
+  stat:
+    path: '/usr/lib/jvm/java-{{ openjdk_version }}-openjdk'
+  register: is_openjdk_directory
+  changed_when: no
 
+- name: Install Open JDK
+  dnf:
+    name: 'java-{{ openjdk_version }}-openjdk-devel'
+    state: latest
+  when: not is_openjdk_directory.stat.exists
+
+- name: Copy environment variable script
+  copy:
+    src: 'java.sh'
+    dest: '/etc/profile.d/java.sh'
+    mode: 0755

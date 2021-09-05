@@ -1,126 +1,24 @@
 ---
 - name: Check exists jenkins.war
-  stat: path='/usr/lib/jenkins/jenkins.war'
+  stat:
+    path: '/usr/lib/jenkins/jenkins.war'
   register: is_jenkins
-  tags: [ 'jenkins' ]
+  changed_when: no
 
 - name: Download jenkins.repo
   get_url:
-    url: https://pkg.jenkins.io/redhat/jenkins.repo
-    dest: /etc/yum.repos.d/jenkins.repo
+    url: 'https://pkg.jenkins.io/redhat/jenkins.repo'
+    dest: '/etc/yum.repos.d/jenkins.repo'
   when: not is_jenkins.stat.exists
-  tags: [ 'jenkins' ]
 
 - name: Import Jenkins key
   rpm_key:
     state: present
-    key: https://pkg.jenkins.io/redhat/jenkins.io.key
+    key: 'https://pkg.jenkins.io/redhat/jenkins.io.key'
   when: not is_jenkins.stat.exists
-  tags: [ 'jenkins' ]
 
 - name: Install Jenkins
-  yum:
+  dnf:
     name: jenkins
-    state: present
+    state: latest
   when: not is_jenkins.stat.exists
-  tags: [ 'jenkins' ]
-
-- name: Check exists jenkins sysconfig backup
-  stat: path='/etc/sysconfig/jenkins.bak'
-  register: is_jenkins_sysconfig_backup
-  tags: [ 'jenkins' ]
-
-- name: Backup my.cnf
-  copy:
-    src: '/etc/sysconfig/jenkins'
-    dest: '/etc/sysconfig/jenkins.bak'
-    owner: root
-    group: root
-    mode: 0600
-  when: not is_jenkins_sysconfig_backup.stat.exists
-  tags: [ 'jenkins' ]
-
-- name: Set JENKINS_HOME
-  lineinfile:
-    path: '/etc/sysconfig/jenkins'
-    state: present
-    regexp: '.*JENKINS_HOME=.*'
-    line: 'JENKINS_HOME="{{ jenkins_home }}"'
-  when: not is_jenkins_sysconfig_backup.stat.exists
-  tags: [ 'jenkins' ]
-
-- name: Set JENKINS_PORT
-  lineinfile:
-    path: '/etc/sysconfig/jenkins'
-    state: present
-    regexp: '.*JENKINS_PORT=.*'
-    line: 'JENKINS_PORT="{{ jenkins_port }}"'
-  when: not is_jenkins_sysconfig_backup.stat.exists
-  tags: [ 'jenkins' ]
-
-- name: Set JENKINS_JAVA_OPTIONS
-  lineinfile:
-    path: '/etc/sysconfig/jenkins'
-    state: present
-    regexp: '.*JENKINS_JAVA_OPTIONS=.*'
-    line: 'JENKINS_JAVA_OPTIONS="{{ jenkins_java_options }}"'
-  when: not is_jenkins_sysconfig_backup.stat.exists
-  tags: [ 'jenkins' ]
-
-- name: Set JENKINS_INSTALL_SKIP_CHOWN
-  lineinfile:
-    path: '/etc/sysconfig/jenkins'
-    state: present
-    regexp: '.*JENKINS_INSTALL_SKIP_CHOWN=.*'
-    line: 'JENKINS_INSTALL_SKIP_CHOWN="true"'
-  when: not is_jenkins_sysconfig_backup.stat.exists
-  tags: [ 'jenkins' ]
-
-- name: Restart Jenkins service
-  become: yes
-  service:
-    name: jenkins
-    state: restarted
-    enabled: yes
-#  when: not is_jenkins.stat.exists
-  tags: [ 'jenkins' ]
-
-- name: Wait untils Jenkins is available (delay - 30 sec)
-  wait_for:
-    host: '{{ inventory_hostname }}'
-    port: '{{ jenkins_port }}'
-    state: started
-    delay: 30
-    connect_timeout: 10
-#  when: not is_jenkins.stat.exists
-  tags: [ 'jenkins' ]
-
-- name: Wait untils Jenkins web is available (delay - 30 sec)
-  uri: url='{{ jenkins_url }}'
-  register: result
-  until: result.status == 200
-  retries: 7
-  delay: 30
-#  when: not is_jenkins.stat.exists
-  tags: [ 'jenkins' ]
-
-- name: Wait untils JENKINS_HOME is created (delay - 30 sec)
-  stat: path='{{ jenkins_home }}'
-  register: is_jenkins_home
-  until: is_jenkins_home.stat.exists
-  retries: 7
-  delay: 30
-#  when: not is_jenkins.stat.exists
-  tags: [ 'jenkins' ]
-
-- name: Set password Jenkins user
-  user: 
-    name: '{{ jenkins_user }}'
-    password: "{{ jenkins_user_password | password_hash('sha512') }}"
-    groups: '{{ app_group }}'
-    append: yes
-    shell: /bin/bash
-    # * Login should be disabled in the production environment.
-    #shell: /sbin/nologin
-  tags: [ 'jenkins' ]
-

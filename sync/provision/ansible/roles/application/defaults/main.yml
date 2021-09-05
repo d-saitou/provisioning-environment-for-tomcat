@@ -1,23 +1,12 @@
 ---
-app_basename: 'Spring4MvcExample'
-app_basepath: '{{ app_src_path }}'
-
-app_path: '{{ app_basepath }}/{{ app_basename }}'
-app_url: 'https://github.com/d-saitou/{{ app_basename }}.git'
-
+app_basename: 'spring-mvc-example'
+app_sources_path: '{{ apps_src_path }}/{{ app_basename }}'
+app_repository_url: 'https://github.com/d-saitou/{{ app_basename }}.git'
 app_war_file: '{{ app_basename }}.war'
 app_war_path: '{{ app_path }}/target/{{ app_war_file }}'
-app_deploy_path: '{{ app_web_path }}/{{ app_war_file }}'
-
-app_conf_base: '{{ app_conf_path }}/spring4mvcexample'
+app_conf_base: '{{ apps_conf_path }}/springmvcexample'
 app_properties: '{{ app_conf_base }}/application.properties'
 app_logback_config: '{{ app_conf_base }}/logback.xml'
-
-app_db_user: 'spring'
-app_db_password: 'spring'
-app_db_name: 'spring4example'
-app_import_sql: '{{ app_path }}/data/db/spring4example.sql'
-
-jenkins_user: '{{ jenkins_app_user }}'
-jenkins_password: '{{ jenkins_app_password }}'
-
+app_db_name: '{{ global_db_name }}'
+app_db_user: '{{ global_db_user }}'
+app_db_pass: '{{ global_db_pass }}'

@@ -1,8 +1,5 @@
 ---
 - include: source.yml
-- include: db.yml
+- include: database.yml
 - include: config.yml
-#- include: build.yml
-- include: ../tomcat/tasks/restart.yml
 - include: deploy.yml
-

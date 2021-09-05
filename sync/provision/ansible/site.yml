@@ -1,9 +1,4 @@
 ---
-#- name: main
-#  hosts: local
-#  become: yes
-#  roles:
-
 - name: Provision all
   hosts: all
   become: yes
@@ -19,20 +14,19 @@
     - xrdp
 
 - name: Provision db-server
-  hosts: db-servers
+  hosts: dbservers
   become: yes
   roles:
     - mysql
 
 - name: Provision ap-server
-  hosts: ap-servers
+  hosts: apservers
   become: yes
   roles:
     - user
     - jdk
     - maven
-    - ant
     - tomcat
     - jenkins
+    - maildev
     - application
-

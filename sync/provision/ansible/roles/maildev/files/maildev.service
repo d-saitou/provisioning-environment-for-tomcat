@@ -1,0 +1,12 @@
+[Unit]
+Description=maildev Service
+
+[Service]
+Type=simple
+Restart=no
+ExecStart=/usr/local/bin/maildev.sh start
+ExecReload=/usr/local/bin/maildev.sh reload
+ExecStop=/usr/local/bin/maildev.sh stop
+
+[Install]
+WantedBy=multi-user.target

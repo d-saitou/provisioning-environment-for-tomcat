@@ -1,16 +1,23 @@
 ---
+- name: Get the latest version number of Maven
+  shell: 'curl -Ls {{ maven_url }} | grep -Eo "<a.*>(.*?)<\/a>" | sed -e "s/<[^>]*>//g" | sed "s/\///g" | tail -1'
+  register: maven_version
+  changed_when: no
+  args:
+    warn: false
+
 - name: Check exists Maven directory
-  stat: path='{{ maven_path }}'
+  stat:
+    path: '{{ maven_basepath }}/apache-maven-{{ maven_version.stdout }}'
   register: is_maven
-  tags: [ 'maven' ]
+  changed_when: no
 
 - name: Download Maven archive file
   get_url:
-    url: '{{ maven_url }}'
-    dest: '/tmp/{{ maven_file }}'
+    url: '{{ maven_url }}/{{ maven_version.stdout }}/binaries/apache-maven-{{ maven_version.stdout }}-bin.tar.gz'
+    dest: '/tmp/apache-maven-{{ maven_version.stdout }}-bin.tar.gz'
     mode: 0644
   when: not is_maven.stat.exists
-  tags: [ 'maven' ]
 
 - name: Create Maven base directory
   file:
@@ -18,27 +25,22 @@
     state: directory
     mode: 0755
   when: not is_maven.stat.exists
-  tags: [ 'maven' ]
 
-- name: Install Maven
+- name: Unarchive Maven archive file
   unarchive:
-    src: '/tmp/{{ maven_file }}'
+    src: '/tmp/apache-maven-{{ maven_version.stdout }}-bin.tar.gz'
     dest: '{{ maven_basepath }}'
     mode: 0755
   when: not is_maven.stat.exists
-  tags: [ 'maven' ]
 
 - name: Remove Maven archive file
   file:
-    path: '/tmp/{{ maven_file }}'
+    path: '/tmp/apache-maven-{{ maven_version.stdout }}-bin.tar.gz'
     state: absent
   when: not is_maven.stat.exists
-  tags: [ 'maven' ]
 
 - name: Copy maven.sh template
   template:
     src: 'maven.sh.j2'
     dest: '/etc/profile.d/maven.sh'
     mode: 0644
-  tags: [ 'maven' ]
-

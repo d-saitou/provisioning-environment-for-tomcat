@@ -1,15 +1,14 @@
 ---
-- name: Check exists application
-  stat: path={{ app_path }}
-  register: is_application_source
-  tags: [ 'application' ]
+- name: Check exists application sources
+  stat:
+    path: '{{ app_sources_path }}'
+  register: is_application_sources
+  changed_when: no
 
-- name: Download application from GitHub
+- name: Download application from repository
   become: yes
-  become_user: '{{ app_user }}'
+  become_user: '{{ apps_user }}'
   git: 
-    repo: '{{ app_url }}'
-    dest: '{{ app_path }}'
-  when: not is_application_source.stat.exists
-  tags: [ 'application' ]
-
+    repo: '{{ app_repository_url }}'
+    dest: '{{ app_sources_path }}'
+  when: not is_application_sources.stat.exists
